@@ -32,6 +32,8 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.planargraph.Node;
 
 /**
+ * THIS IS A TEST OF THE SYNC BETWEEN ECLIPSE>COPY>GITHUB
+ * 
  * A simple model that locates agents on Norfolk's road network
  * and makes them move from A to B.
  * 
