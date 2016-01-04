@@ -114,6 +114,7 @@ public class NorfolkCSVTEST extends SimState	{
             MBR.expandToInclude(lsoa.getMBR());
 
             createNetwork();
+            // Network creation fails here
 
             // update so that everyone knows what the standard MBR is
             roads.setMBR(MBR);
@@ -173,7 +174,14 @@ public class NorfolkCSVTEST extends SimState	{
             GeomPlanarGraphEdge e = (GeomPlanarGraphEdge) o;
 
             idsToEdges.put(e.getIntegerAttribute("TOID").intValue(), e);
-  
+            // Network creation fails here. Why?
+            // java.lang.String cannot be cast to java.lang.Integer
+            // What String? What Integer?
+            	// What is idsToEdges?
+            	// GeomPlanarGraphEdge?
+            		// Line 231 onwards: uses double to parse id_id to startingEdge.
+            	// Are the HashMaps from line 59 onwards the problem?
+          
             e.setData(new ArrayList<MainAgent>());
         }
     
