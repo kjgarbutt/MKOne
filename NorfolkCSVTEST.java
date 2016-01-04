@@ -32,8 +32,8 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.planargraph.Node;
 
 /**
- * THIS IS A TEST OF THE SYNC BETWEEN ECLIPSE>COPY>GITHUB
- * THIS IS ANOTHER TEST OF THE SYNC BETWEEN ECLIPSE>COPY>GITHUB
+ * Getting an error when it starts to create the network:
+ * Exception in thread "AWT-EventQueue-0" java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Integer
  * 
  * A simple model that locates agents on Norfolk's road network
  * and makes them move from A to B.
