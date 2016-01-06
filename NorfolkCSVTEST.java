@@ -173,7 +173,7 @@ public class NorfolkCSVTEST extends SimState	{
         for (Object o : network.getEdges())	{
             GeomPlanarGraphEdge e = (GeomPlanarGraphEdge) o;
 
-            idsToEdges.put(e.getIntegerAttribute("TOID").intValue(), e);
+            idsToEdges.put(e.getIntegerAttribute("ID_ID").intValue(), e);
             // Network creation fails here. Why?
             // java.lang.String cannot be cast to java.lang.Integer
             // What String? What Integer?
@@ -227,10 +227,10 @@ public class NorfolkCSVTEST extends SimState	{
                 System.out.println("Main Agent ID_ID: " +id_id);
                 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
-                    (double) Double.parseDouble(id_id));
+                    (int) Double.parseDouble(id_id));
                 GeomPlanarGraphEdge goalEdge = idsToEdges.get(
                     goals[ random.nextInt(goals.length)]);
-                for (double i = 0; i < 1; i++){
+                for (int i = 0; i < 1; i++){
                     MainAgent a = new MainAgent(this, homeTract, workTract, startingEdge, goalEdge);                    
                     
                     boolean successfulStart = a.start(this);
