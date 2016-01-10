@@ -101,20 +101,20 @@ public class NorfolkCSVTEST extends SimState	{
         // read in data
         try {
             // read in the roads to create the transit network
-            System.out.println("reading roads layer...");
+            System.out.println("Reading roads layer: " +roads);
             URL roadsFile = NorfolkCSVTEST.class.getResource("data/NorfolkITNLSOA.shp");
             ShapeFileImporter.read(roadsFile, roads);
             Envelope MBR = roads.getMBR();
 
             // read in the tracts to create the background
-            System.out.println("reading areas layer...");         
+            System.out.println("Reading areas layer: " +lsoa);         
             URL areasFile = NorfolkCSVTEST.class.getResource("data/NorfolkLSOA.shp");
             ShapeFileImporter.read(areasFile, lsoa);
 
             MBR.expandToInclude(lsoa.getMBR());
 
             createNetwork();
-            // Network creation fails here
+            System.out.println("Creating network from: " +roads);
 
             // update so that everyone knows what the standard MBR is
             roads.setMBR(MBR);
@@ -166,14 +166,12 @@ public class NorfolkCSVTEST extends SimState	{
      */
     private void createNetwork()
     {
-        System.out.println("creating network...");
-
         network.createFromGeomField(roads);
  
         for (Object o : network.getEdges())	{
             GeomPlanarGraphEdge e = (GeomPlanarGraphEdge) o;
 
-            idsToEdges.put(e.getIntegerAttribute("ID_ID").intValue(), e);
+            idsToEdges.put(e.getIntegerAttribute("ROAD_ID").intValue(), e);
             // Network creation fails here. Why?
             // java.lang.String cannot be cast to java.lang.Integer
             // What String? What Integer?
@@ -194,13 +192,14 @@ public class NorfolkCSVTEST extends SimState	{
      * @param filename
      */
     public void populate(String filename)	{
-    	System.out.println("populating model...");
+    	System.out.println("Populating model...");
         try	{
         	// filename = NorfolkITNLSOA.csv
             String filePath = NorfolkCSVTEST.class.getResource(filename).getPath();
             // filePath = data/NorfolkITNLSOA.csv
             FileInputStream fstream = new FileInputStream(filePath);
-
+            System.out.println("Reading population file: " +filePath);
+            
             BufferedReader d = new BufferedReader(new InputStreamReader(fstream));
             String s;
 
@@ -216,45 +215,72 @@ public class NorfolkCSVTEST extends SimState	{
                 
                 // 40th column in NorfolkITNLSOA.csv = column AO "Work1" e.g. 1, 1, 1...
                 int workTract = Integer.parseInt(bits[40]);
-                System.out.println("Main Agent work: " +workTract);
+                System.out.println("Main Agent workTract: " +workTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
                 int homeTract = Integer.parseInt(bits[11]);
-                System.out.println("Main Agent home: " +homeTract);
+                System.out.println("Main Agent homeTract: " +homeTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
                 String id_id = bits[11];
                 System.out.println("Main Agent ID_ID: " +id_id);
                 
+                // 3rd column in NorfolkITNLSOA.csv = column D "THEME" e.g. Road Network...
+                String THEME = bits[3];
+                System.out.println("Main Agent Theme: " +THEME);
+                
+                // 0th column in NorfolkITNLSOA.csv = column A "TOID" e.g. 4000000026869030...
+                String TOID = bits[0];
+                System.out.println("Main Agent TOID: " +TOID);
+                
+                // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 4000000026869030...
+                String ROAD_ID = bits[11];
+                System.out.println("Main Agent ROAD_ID: " +ROAD_ID);
+                
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
-                    (int) Double.parseDouble(id_id));
+                    (int) Double.parseDouble(ROAD_ID));
+                System.out.println("Main Agent TOID is still: " +TOID);
+                System.out.println("Main Agent ROAD_ID is sill: " +ROAD_ID);
+                System.out.println("startingEdge: " +startingEdge);
+                System.out.println("idsToEdges: " +idsToEdges);
+                
                 GeomPlanarGraphEdge goalEdge = idsToEdges.get(
                     goals[ random.nextInt(goals.length)]);
-                for (int i = 0; i < 1; i++){
+                System.out.println("goalEdge: " +goalEdge);
+                System.out.println("goals: " +goals);
+                
+                for (int i = 0; i < pop; i++)	{
+                	//1; i++){ NO IDEA IF THIS MAKES A DIFFERENCE
                     MainAgent a = new MainAgent(this, homeTract, workTract, startingEdge, goalEdge);                    
-                    
+                    System.out.println("MainAgent 'a': " +this + ", Home Tract: " +homeTract + ", Work Tract: " +workTract + ", Starting Edge: " +startingEdge + ", Goal Edge: " +goalEdge);
                     boolean successfulStart = a.start(this);
+                    System.out.println("Starting...");
 
                     if (!successfulStart)	{
-                        continue; // DON'T ADD IT if it's bad
+                    	System.out.println("Successful!");
+                    	continue; // DON'T ADD IT if it's bad
                     }
 
                     // MasonGeometry newGeometry = new MasonGeometry(a.getGeometry());
                     MasonGeometry newGeometry = a.getGeometry();
+                    System.out.println("Setting geometry...");
                     newGeometry.isMovable = true;
                     agents.addGeometry(newGeometry);
                     agentList.add(a);
+                    System.out.println("Adding Agents and scheduling...");
                     schedule.scheduleRepeating(a);
                 }
             }
 
             // clean up
             d.close();
+            System.out.println("Cleaning...");
 
-        } catch (Exception e)
-        {
-            System.out.println("ERROR: issue with population file: " + e);
-        }
+	        //} catch (Exception e)
+	        } catch (IOException e) {
+		    	//System.out.println("ERROR: issue with population file: " + e);
+				e.printStackTrace();
+			}
 
     }
     
