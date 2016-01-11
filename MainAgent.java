@@ -119,6 +119,7 @@ public final class MainAgent implements Steppable
 
        // get the home and work Nodes with which this Agent is associated
        Node currentJunction = geoTest.network.findNode(location.geometry.getCoordinate());
+       //System.out.println("currentJunction: " +currentJunction);
        Node destinationJunction = workNode;
 
        if (currentJunction == null)

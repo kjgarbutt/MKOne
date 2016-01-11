@@ -211,18 +211,21 @@ public class NorfolkCSVTEST extends SimState	{
                 
                 // 24th column in NorfolkITNLSOA.csv = column Y "LSOA_ID" e.g. 120, 145, 317...
                 int pop = Integer.parseInt(bits[24]); // TODO: reset me if desired!
-                System.out.println("Main Agent: " +pop);
+                System.out.println("Main Agent LSAO_ID: " +pop);
                 
                 // 40th column in NorfolkITNLSOA.csv = column AO "Work1" e.g. 1, 1, 1...
-                int workTract = Integer.parseInt(bits[40]);
+                String workTract = bits[40];
+                //int workTract = Integer.parseInt(bits[40]);
                 System.out.println("Main Agent workTract: " +workTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
-                int homeTract = Integer.parseInt(bits[11]);
+                String homeTract = bits[11];
+                //int homeTract = Integer.parseInt(bits[11]);
                 System.out.println("Main Agent homeTract: " +homeTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
                 String id_id = bits[11];
+                //int id_id = Integer.parseInt(bits[11]);
                 System.out.println("Main Agent ID_ID: " +id_id);
                 
                 // 3rd column in NorfolkITNLSOA.csv = column D "THEME" e.g. Road Network...
@@ -230,31 +233,35 @@ public class NorfolkCSVTEST extends SimState	{
                 System.out.println("Main Agent Theme: " +THEME);
                 
                 // 0th column in NorfolkITNLSOA.csv = column A "TOID" e.g. 4000000026869030...
-                String TOID = bits[0];
+                //String TOID = bits[0];
+                long TOID = Long.parseLong(bits[0]);
                 System.out.println("Main Agent TOID: " +TOID);
                 
-                // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 4000000026869030...
+                // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
                 String ROAD_ID = bits[11];
                 System.out.println("Main Agent ROAD_ID: " +ROAD_ID);
                 
+                //GeomPlanarGraphEdge startingEdge = idsToEdges.get(
+                //		ROAD_ID);
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
-                    (int) Double.parseDouble(ROAD_ID));
+                		(int) Double.parseDouble(ROAD_ID));
                 System.out.println("Main Agent TOID is still: " +TOID);
                 System.out.println("Main Agent ROAD_ID is sill: " +ROAD_ID);
                 System.out.println("startingEdge: " +startingEdge);
-                System.out.println("idsToEdges: " +idsToEdges);
+                //System.out.println("idsToEdges: " +idsToEdges);
                 
                 GeomPlanarGraphEdge goalEdge = idsToEdges.get(
                     goals[ random.nextInt(goals.length)]);
                 System.out.println("goalEdge: " +goalEdge);
                 System.out.println("goals: " +goals);
+                System.out.println("homeNode: " +goals);
                 
-                for (int i = 0; i < pop; i++)	{
-                	//1; i++){ NO IDEA IF THIS MAKES A DIFFERENCE
+                for (int i = 0; i < 1; i++)	{
+                	//pop; i++)	{ NO IDEA IF THIS MAKES A DIFFERENCE
                     MainAgent a = new MainAgent(this, homeTract, workTract, startingEdge, goalEdge);                    
-                    System.out.println("MainAgent 'a': " +this + ", Home Tract: " +homeTract + ", Work Tract: " +workTract + ", Starting Edge: " +startingEdge + ", Goal Edge: " +goalEdge);
+                    //System.out.println("MainAgent 'a': " +this + ", Home Tract: " +homeTract + ", Work Tract: " +workTract + ", Starting Edge: " +startingEdge + ", Goal Edge: " +goalEdge);
                     boolean successfulStart = a.start(this);
-                    System.out.println("Starting...");
+                    //System.out.println("Starting...");
 
                     if (!successfulStart)	{
                     	System.out.println("Successful!");
@@ -263,12 +270,12 @@ public class NorfolkCSVTEST extends SimState	{
 
                     // MasonGeometry newGeometry = new MasonGeometry(a.getGeometry());
                     MasonGeometry newGeometry = a.getGeometry();
-                    System.out.println("Setting geometry...");
+                    //System.out.println("Setting geometry...");
                     newGeometry.isMovable = true;
                     agents.addGeometry(newGeometry);
                     agentList.add(a);
-                    System.out.println("Adding Agents and scheduling...");
                     schedule.scheduleRepeating(a);
+                    //System.out.println("Adding Agents and scheduling...");
                 }
             }
 
@@ -278,7 +285,7 @@ public class NorfolkCSVTEST extends SimState	{
 
 	        //} catch (Exception e)
 	        } catch (IOException e) {
-		    	//System.out.println("ERROR: issue with population file: " + e);
+		    	System.out.println("ERROR: issue with population file: ");
 				e.printStackTrace();
 			}
 
@@ -316,6 +323,7 @@ public class NorfolkCSVTEST extends SimState	{
     public static void main(String[] args)
     {
         doLoop(NorfolkCSVTEST.class, args);
+        System.out.println("Working?");
         System.exit(0);
     }
 
