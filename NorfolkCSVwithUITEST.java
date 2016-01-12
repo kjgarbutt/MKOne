@@ -41,7 +41,7 @@ public class NorfolkCSVwithUITEST extends GUIState	{
     private GeomVectorFieldPortrayal lsoaPortrayal = new GeomVectorFieldPortrayal();
     private GeomVectorFieldPortrayal roadsPortrayal = new GeomVectorFieldPortrayal();
     private GeomVectorFieldPortrayal agentPortrayal = new GeomVectorFieldPortrayal();
-    //private GeomVectorFieldPortrayal floodPortrayal = new GeomVectorFieldPortrayal();
+    private GeomVectorFieldPortrayal floodPortrayal = new GeomVectorFieldPortrayal();
     //private GeomVectorFieldPortrayal ngoagentPortrayal = new GeomVectorFieldPortrayal();
     //private GeomVectorFieldPortrayal elderlyagentPortrayal = new GeomVectorFieldPortrayal();
     //private GeomVectorFieldPortrayal limactagentPortrayal = new GeomVectorFieldPortrayal();
@@ -152,10 +152,13 @@ public class NorfolkCSVwithUITEST extends GUIState	{
 
             lsoaPortrayal.setField(world.lsoa);
             // tractsPortrayal.setPortrayalForAll(new PolyPortrayal());//(Color.GREEN,true));
-            lsoaPortrayal.setPortrayalForAll(new GeomPortrayal(Color.GREEN, true));
+            lsoaPortrayal.setPortrayalForAll(new GeomPortrayal(Color.LIGHT_GRAY, true));
 
+            floodPortrayal.setField(world.flood);
+            floodPortrayal.setPortrayalForAll(new GeomPortrayal(Color.CYAN, true));
+            
             agentPortrayal.setField(world.agents);
-            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 0.001, true));
+            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 1, true));
 
             display.reset();
             display.setBackdrop(Color.WHITE);
@@ -185,7 +188,8 @@ public class NorfolkCSVwithUITEST extends GUIState	{
             // the "Display" list
             displayFrame.setVisible(true);
 
-            display.attach(lsoaPortrayal, "Census Tracts");
+            display.attach(lsoaPortrayal, "LSOA");
+            display.attach(floodPortrayal, "Flood Zone");
             display.attach(roadsPortrayal, "Roads");
             display.attach(agentPortrayal, "Agents");
 
@@ -207,7 +211,9 @@ public class NorfolkCSVwithUITEST extends GUIState	{
          */
         public void quit()
         {
-            super.quit();
+
+        	System.out.println("Exiting..?");
+        	super.quit();
 
             if (displayFrame != null)
             {

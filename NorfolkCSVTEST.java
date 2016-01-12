@@ -82,7 +82,7 @@ public class NorfolkCSVTEST extends SimState	{
     // of an NegativeArraySize error? Any suggestions very welcome!
     Integer[] goals =	{
     		//72142, 72176, 72235, 72178, 89178
-    		10, 24, 38
+    		2, 10, 24, 38, 53, 60
     };
 
     
@@ -97,6 +97,7 @@ public class NorfolkCSVTEST extends SimState	{
     @Override
     public void start() {
         super.start();
+        System.out.println("Starting...");
 
         // read in data
         try {
@@ -113,12 +114,20 @@ public class NorfolkCSVTEST extends SimState	{
 
             MBR.expandToInclude(lsoa.getMBR());
 
+            // read in the tracts to create the background
+            System.out.println("Reading floods layer: " +flood);         
+            URL floodFile = NorfolkCSVTEST.class.getResource("data/flood_zone_3_010k_NORFOLK_ONLY.shp");
+            ShapeFileImporter.read(floodFile, flood);
+            
+            MBR.expandToInclude(flood.getMBR());
+            
             createNetwork();
             System.out.println("Creating network from: " +roads);
 
             // update so that everyone knows what the standard MBR is
             roads.setMBR(MBR);
             lsoa.setMBR(MBR);
+            flood.setMBR(MBR);
 
             // initialize agents
             populate("data/NorfolkITNLSOA.csv");
@@ -166,20 +175,14 @@ public class NorfolkCSVTEST extends SimState	{
      */
     private void createNetwork()
     {
-        network.createFromGeomField(roads);
+    	System.out.println("Creating road network..?");
+    	network.createFromGeomField(roads);
  
         for (Object o : network.getEdges())	{
             GeomPlanarGraphEdge e = (GeomPlanarGraphEdge) o;
 
             idsToEdges.put(e.getIntegerAttribute("ROAD_ID").intValue(), e);
-            // Network creation fails here. Why?
-            // java.lang.String cannot be cast to java.lang.Integer
-            // What String? What Integer?
-            	// What is idsToEdges?
-            	// GeomPlanarGraphEdge?
-            		// Line 231 onwards: uses double to parse id_id to startingEdge.
-            	// Are the HashMaps from line 59 onwards the problem?
-          
+                      
             e.setData(new ArrayList<MainAgent>());
         }
     
@@ -194,9 +197,7 @@ public class NorfolkCSVTEST extends SimState	{
     public void populate(String filename)	{
     	System.out.println("Populating model...");
         try	{
-        	// filename = NorfolkITNLSOA.csv
             String filePath = NorfolkCSVTEST.class.getResource(filename).getPath();
-            // filePath = data/NorfolkITNLSOA.csv
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println("Reading population file: " +filePath);
             
@@ -233,8 +234,8 @@ public class NorfolkCSVTEST extends SimState	{
                 System.out.println("Main Agent Theme: " +THEME);
                 
                 // 0th column in NorfolkITNLSOA.csv = column A "TOID" e.g. 4000000026869030...
-                //String TOID = bits[0];
-                long TOID = Long.parseLong(bits[0]);
+                String TOID = bits[0];
+                //long TOID = Long.parseLong(bits[0]);
                 System.out.println("Main Agent TOID: " +TOID);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
@@ -259,7 +260,7 @@ public class NorfolkCSVTEST extends SimState	{
                 for (int i = 0; i < 1; i++)	{
                 	//pop; i++)	{ NO IDEA IF THIS MAKES A DIFFERENCE
                     MainAgent a = new MainAgent(this, homeTract, workTract, startingEdge, goalEdge);                    
-                    //System.out.println("MainAgent 'a': " +this + ", Home Tract: " +homeTract + ", Work Tract: " +workTract + ", Starting Edge: " +startingEdge + ", Goal Edge: " +goalEdge);
+                    System.out.println("MainAgent 'a': " +this + ", Home Tract: " +homeTract + ", Work Tract: " +workTract + ", Starting Edge: " +startingEdge + ", Goal Edge: " +goalEdge);
                     boolean successfulStart = a.start(this);
                     //System.out.println("Starting...");
 
@@ -283,8 +284,7 @@ public class NorfolkCSVTEST extends SimState	{
             d.close();
             System.out.println("Cleaning...");
 
-	        //} catch (Exception e)
-	        } catch (IOException e) {
+	        } catch (Exception e) {
 		    	System.out.println("ERROR: issue with population file: ");
 				e.printStackTrace();
 			}
@@ -323,8 +323,9 @@ public class NorfolkCSVTEST extends SimState	{
     public static void main(String[] args)
     {
         doLoop(NorfolkCSVTEST.class, args);
-        System.out.println("Working?");
+        //System.out.println("Exiting..?");
         System.exit(0);
+        
     }
 
 }

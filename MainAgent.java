@@ -62,7 +62,7 @@ public final class MainAgent implements Steppable
 	 * Constructor: specifies parameters for Agents
 	 * 
 	 */
-    public MainAgent(NorfolkCSVTEST g, String homeTract2, String workTract2,
+    public MainAgent(NorfolkCSVTEST g, String homeTract, String workTract,
             GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge)
     {
 	   world = g;
@@ -70,8 +70,8 @@ public final class MainAgent implements Steppable
 	   // set up information about where the node is and where it's going
 	   homeNode = startingEdge.getDirEdge(0).getFromNode();
 	   workNode = goalEdge.getDirEdge(0).getToNode();
-	   homeTract = homeTract2;
-	   workTract = workTract2;
+	   homeTract = homeTract;
+	   workTract = workTract;
 	
 	   // set the location to be displayed
 	   GeometryFactory fact = new GeometryFactory();
@@ -81,12 +81,12 @@ public final class MainAgent implements Steppable
 	   updatePosition(startCoord);
 	}
     
-    public MainAgent(NorfolkCSVTEST g, int homeTract2, int workTract2,
+    public MainAgent(NorfolkCSVTEST g, int homeTract, int workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
 		// TODO Auto-generated constructor stub
 	}
 
-	public MainAgent(NorfolkCSVTEST g, double homeTract2, double workTract2,
+	public MainAgent(NorfolkCSVTEST g, double homeTract, double workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
 		// TODO Auto-generated constructor stub
 	}
