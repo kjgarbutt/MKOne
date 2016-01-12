@@ -130,7 +130,7 @@ public class NorfolkCSVTEST extends SimState	{
             flood.setMBR(MBR);
 
             // initialize agents
-            populate("data/NorfolkITNLSOA.csv");
+            populate("data/NorfolkLSOA.csv");
             agents.setMBR(MBR);
 
             // Ensure that the spatial index is updated after all the agents move
@@ -211,32 +211,34 @@ public class NorfolkCSVTEST extends SimState	{
                 String[] bits = s.split(",");
                 
                 // 24th column in NorfolkITNLSOA.csv = column Y "LSOA_ID" e.g. 120, 145, 317...
-                int pop = Integer.parseInt(bits[24]); // TODO: reset me if desired!
+                //int pop = Integer.parseInt(bits[24]); // TODO: reset me if desired!
+                int pop = Integer.parseInt(bits[12]);
                 System.out.println("Main Agent LSAO_ID: " +pop);
                 
                 // 40th column in NorfolkITNLSOA.csv = column AO "Work1" e.g. 1, 1, 1...
-                String workTract = bits[40];
+                String workTract = bits[28];
                 //int workTract = Integer.parseInt(bits[40]);
                 System.out.println("Main Agent workTract: " +workTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
-                String homeTract = bits[11];
+                String homeTract = bits[12];
                 //int homeTract = Integer.parseInt(bits[11]);
                 System.out.println("Main Agent homeTract: " +homeTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
-                String id_id = bits[11];
+                //String id_id = bits[11];
+                String id_id = bits[12];
                 //int id_id = Integer.parseInt(bits[11]);
                 System.out.println("Main Agent ID_ID: " +id_id);
                 
                 // 3rd column in NorfolkITNLSOA.csv = column D "THEME" e.g. Road Network...
-                String THEME = bits[3];
-                System.out.println("Main Agent Theme: " +THEME);
+                //String THEME = bits[3];
+                //System.out.println("Main Agent Theme: " +THEME);
                 
                 // 0th column in NorfolkITNLSOA.csv = column A "TOID" e.g. 4000000026869030...
-                String TOID = bits[0];
+                //String TOID = bits[0];
                 //long TOID = Long.parseLong(bits[0]);
-                System.out.println("Main Agent TOID: " +TOID);
+                //System.out.println("Main Agent TOID: " +TOID);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
                 String ROAD_ID = bits[11];
@@ -246,7 +248,7 @@ public class NorfolkCSVTEST extends SimState	{
                 //		ROAD_ID);
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
-                System.out.println("Main Agent TOID is still: " +TOID);
+                //System.out.println("Main Agent TOID is still: " +TOID);
                 System.out.println("Main Agent ROAD_ID is sill: " +ROAD_ID);
                 System.out.println("startingEdge: " +startingEdge);
                 //System.out.println("idsToEdges: " +idsToEdges);
