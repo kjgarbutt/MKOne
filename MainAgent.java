@@ -1,4 +1,4 @@
-package sim.app.geo.norfolk_csvTEST;
+package sim.app.geo.norfolk_routing;
 
 import java.util.ArrayList;
 
@@ -31,7 +31,7 @@ public final class MainAgent implements Steppable
 {
     private static final long serialVersionUID = -1113018274619047013L;
     //////////Parameters ///////////////////////////////////
-    NorfolkCSVTEST world;
+    NorfolkRouting world;
     // Residence/Work Attributes
     String homeTract = "";
     String workTract = "";
@@ -62,7 +62,7 @@ public final class MainAgent implements Steppable
 	 * Constructor: specifies parameters for Agents
 	 * 
 	 */
-    public MainAgent(NorfolkCSVTEST g, String homeTract, String workTract,
+    public MainAgent(NorfolkRouting g, String homeTract, String workTract,
             GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge)
     {
 	   world = g;
@@ -81,12 +81,12 @@ public final class MainAgent implements Steppable
 	   updatePosition(startCoord);
 	}
     
-    public MainAgent(NorfolkCSVTEST g, int homeTract, int workTract,
+    public MainAgent(NorfolkRouting g, int homeTract, int workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
 		// TODO Auto-generated constructor stub
 	}
 
-	public MainAgent(NorfolkCSVTEST g, double homeTract, double workTract,
+	public MainAgent(NorfolkRouting g, double homeTract, double workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
 		// TODO Auto-generated constructor stub
 	}
@@ -96,7 +96,7 @@ public final class MainAgent implements Steppable
     * @param state
     * @return whether or not the agent successfully found a path to work
     */
-   public boolean start(NorfolkCSVTEST state)
+   public boolean start(NorfolkRouting state)
    {
        findNewAStarPath(state);
 
@@ -114,7 +114,7 @@ public final class MainAgent implements Steppable
 
 
    /** Plots a path between the Agent's home Node and its work Node */
-   private void findNewAStarPath(NorfolkCSVTEST geoTest)
+   private void findNewAStarPath(NorfolkRouting geoTest)
    {
 
        // get the home and work Nodes with which this Agent is associated
@@ -177,7 +177,7 @@ public final class MainAgent implements Steppable
        }
 
        // make sure that we're heading in the right direction
-       boolean toWork = ((NorfolkCSVTEST) state).goToWork;
+       boolean toWork = ((NorfolkRouting) state).goToWork;
        if ((toWork && pathDirection < 0) || (!toWork && pathDirection > 0))
        {
            flipPath();

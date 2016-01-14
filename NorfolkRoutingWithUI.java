@@ -1,4 +1,4 @@
-package sim.app.geo.norfolk_csvTEST;
+package sim.app.geo.norfolk_routing;
 
 import com.vividsolutions.jts.io.ParseException;
 
@@ -33,7 +33,7 @@ import sim.util.media.chart.TimeSeriesChartGenerator;
  * 
  * @author KJGarbutt
  */
-public class NorfolkCSVwithUITEST extends GUIState	{
+public class NorfolkRoutingWithUI extends GUIState	{
     private Display2D display;
     private JFrame displayFrame;
 
@@ -55,7 +55,7 @@ public class NorfolkCSVwithUITEST extends GUIState	{
     ///////////////////////////////////////////////////////////////////////////	
     
     /** Default constructor */
-    protected NorfolkCSVwithUITEST(SimState state)
+    protected NorfolkRoutingWithUI(SimState state)
         {
             super(state);
         }
@@ -66,7 +66,7 @@ public class NorfolkCSVwithUITEST extends GUIState	{
          */
         public static void main(String[] args)
         {
-        	NorfolkCSVwithUITEST simple = new NorfolkCSVwithUITEST(new NorfolkCSVTEST(System.currentTimeMillis()));
+        	NorfolkRoutingWithUI simple = new NorfolkRoutingWithUI(new NorfolkRouting(System.currentTimeMillis()));
             Console c = new Console(simple);
             c.setVisible(true);
         }
@@ -102,7 +102,7 @@ public class NorfolkCSVwithUITEST extends GUIState	{
         {
             super.start();
 
-            NorfolkCSVTEST world = (NorfolkCSVTEST) state;
+            NorfolkRouting world = (NorfolkRouting) state;
 
             maxSpeed = new XYSeries("Max Speed");
             avgSpeed = new XYSeries("Average Speed");
@@ -117,7 +117,7 @@ public class NorfolkCSVwithUITEST extends GUIState	{
 
                 public void step(SimState state)
                 {
-                	NorfolkCSVTEST world = (NorfolkCSVTEST) state;
+                	NorfolkRouting world = (NorfolkRouting) state;
                     double maxS = 0, minS = 10000, avgS = 0, count = 0;
                     for (MainAgent a : world.agentList)
                     {
