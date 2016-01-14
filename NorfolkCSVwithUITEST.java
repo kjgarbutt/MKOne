@@ -158,7 +158,7 @@ public class NorfolkCSVwithUITEST extends GUIState	{
             floodPortrayal.setPortrayalForAll(new GeomPortrayal(Color.CYAN, true));
             
             agentPortrayal.setField(world.agents);
-            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 1, true));
+            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 50, true));
 
             display.reset();
             display.setBackdrop(Color.WHITE);

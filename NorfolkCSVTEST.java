@@ -130,7 +130,7 @@ public class NorfolkCSVTEST extends SimState	{
             flood.setMBR(MBR);
 
             // initialize agents
-            populate("data/NorfolkLSOA.csv");
+            populate("data/NorfolkITNLSOA.csv");
             agents.setMBR(MBR);
 
             // Ensure that the spatial index is updated after all the agents move
@@ -212,24 +212,24 @@ public class NorfolkCSVTEST extends SimState	{
                 
                 // 24th column in NorfolkITNLSOA.csv = column Y "LSOA_ID" e.g. 120, 145, 317...
                 //int pop = Integer.parseInt(bits[24]); // TODO: reset me if desired!
-                int pop = Integer.parseInt(bits[12]);
-                System.out.println("Main Agent LSAO_ID: " +pop);
+                int pop = Integer.parseInt(bits[39]);
+                System.out.println("Main Agent POP: " +pop);
                 
                 // 40th column in NorfolkITNLSOA.csv = column AO "Work1" e.g. 1, 1, 1...
-                String workTract = bits[28];
+                String workTract = bits[40];
                 //int workTract = Integer.parseInt(bits[40]);
-                System.out.println("Main Agent workTract: " +workTract);
+                System.out.println("Main Agent work (WORK): " +workTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
-                String homeTract = bits[12];
+                String homeTract = bits[24];
                 //int homeTract = Integer.parseInt(bits[11]);
-                System.out.println("Main Agent homeTract: " +homeTract);
+                System.out.println("Main Agent home (LSOA_ID): " +homeTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
                 //String id_id = bits[11];
-                String id_id = bits[12];
+                String id_id = bits[11];
                 //int id_id = Integer.parseInt(bits[11]);
-                System.out.println("Main Agent ID_ID: " +id_id);
+                System.out.println("Main Agent ID_ID (ROAD_ID): " +id_id);
                 
                 // 3rd column in NorfolkITNLSOA.csv = column D "THEME" e.g. Road Network...
                 //String THEME = bits[3];
