@@ -1,6 +1,6 @@
-# norfolk_csvTEST
+# norfolk_routing
 
-"norfolk_csvTEST" is adapted from the MASON demo, "Gridlock", by Sarah Wise, Mark Coletti, and Andrew Crooks.
+"norfolk_routing" is adapted from the MASON demo, "Gridlock", by Sarah Wise, Mark Coletti, and Andrew Crooks.
         
         It shows how to import GIS data, and how to move agents when they are limited to GIS defined paths.
         The simulation starts by reading GIS data describing the road network of Norfolk.
