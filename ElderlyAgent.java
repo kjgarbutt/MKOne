@@ -1,4 +1,4 @@
-package sim.app.geo.norfolk_routing;
+package sim.app.geo.norfolk_csvTEST;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -45,7 +45,7 @@ public class ElderlyAgent implements Steppable {
 	 * Constructor: specifies parameters for Agents
 	 * 
 	 */
-    public ElderlyAgent(NorfolkRouting state)	{
+    public ElderlyAgent(NorfolkCSVTEST state)	{
         location = new MasonGeometry(fact.createPoint(new Coordinate(10, 10))); // magic numbers
         location.isMovable = true;
         // Find the first line segment and set our position over the start coordinate.
@@ -103,7 +103,7 @@ public class ElderlyAgent implements Steppable {
     }
 
     // randomly selects an adjacent route to traverse
-    private void findNewPath(NorfolkRouting geoTest)    {
+    private void findNewPath(NorfolkCSVTEST geoTest)    {
         // find all the adjacent junctions
         Node currentJunction = geoTest.network.findNode(location.getGeometry().getCoordinate());
 
@@ -169,7 +169,7 @@ public class ElderlyAgent implements Steppable {
     }
 
     public void step(SimState state)    {
-    	NorfolkRouting campState = (NorfolkRouting) state;
+    	NorfolkCSVTEST campState = (NorfolkCSVTEST) state;
         move(campState);
         // campState.agents.setGeometryLocation(getGeometry(), pointMoveTo);
     }
@@ -180,7 +180,7 @@ public class ElderlyAgent implements Steppable {
      * The agent will randomly select an adjacent junction and then move along
      * the line segment to it. Then it will repeat.
      */
-    private void move(NorfolkRouting geoTest)    {
+    private void move(NorfolkCSVTEST geoTest)    {
         // if we're not at a junction move along the current segment
         if (!arrived())	{
             moveAlongPath();
