@@ -1,4 +1,4 @@
-package sim.app.geo.norfolk_routing;
+package sim.app.geo.norfolk_csvTEST;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -41,7 +41,7 @@ import com.vividsolutions.jts.planargraph.Node;
  * @author KJGarbutt
  *
  */
-public class NorfolkRouting extends SimState	{
+public class NorfolkCSVTEST extends SimState	{
 	/////////////// Model Parameters ///////////////////////////////////
     private static final long serialVersionUID = -4554882816749973618L;
 
@@ -87,7 +87,7 @@ public class NorfolkRouting extends SimState	{
 
     
     /** Constructor */
-    public NorfolkRouting(long seed)
+    public NorfolkCSVTEST(long seed)
     {
         super(seed);
     }
@@ -103,20 +103,20 @@ public class NorfolkRouting extends SimState	{
         try {
             // read in the roads to create the transit network
             System.out.println("Reading roads layer: " +roads);
-            URL roadsFile = NorfolkRouting.class.getResource("data/NorfolkITNLSOA.shp");
+            URL roadsFile = NorfolkCSVTEST.class.getResource("data/NorfolkITNLSOA.shp");
             ShapeFileImporter.read(roadsFile, roads);
             Envelope MBR = roads.getMBR();
 
             // read in the tracts to create the background
             System.out.println("Reading areas layer: " +lsoa);         
-            URL areasFile = NorfolkRouting.class.getResource("data/NorfolkLSOA.shp");
+            URL areasFile = NorfolkCSVTEST.class.getResource("data/NorfolkLSOA.shp");
             ShapeFileImporter.read(areasFile, lsoa);
 
             MBR.expandToInclude(lsoa.getMBR());
 
             // read in the tracts to create the background
             System.out.println("Reading floods layer: " +flood);         
-            URL floodFile = NorfolkRouting.class.getResource("data/flood_zone_3_010k_NORFOLK_ONLY.shp");
+            URL floodFile = NorfolkCSVTEST.class.getResource("data/flood_zone_3_010k_NORFOLK_ONLY.shp");
             ShapeFileImporter.read(floodFile, flood);
             
             MBR.expandToInclude(flood.getMBR());
@@ -143,7 +143,7 @@ public class NorfolkRouting extends SimState	{
 				@Override
                 public void step(SimState state)	{
 
-					NorfolkRouting gstate = (NorfolkRouting) state;
+					NorfolkCSVTEST gstate = (NorfolkCSVTEST) state;
 
                     // pass to check if anyone has not yet reached work
                     for (MainAgent a : gstate.agentList)	{
@@ -197,7 +197,7 @@ public class NorfolkRouting extends SimState	{
     public void populate(String filename)	{
     	System.out.println("Populating model...");
         try	{
-            String filePath = NorfolkRouting.class.getResource(filename).getPath();
+            String filePath = NorfolkCSVTEST.class.getResource(filename).getPath();
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println("Reading population file: " +filePath);
             
@@ -324,7 +324,7 @@ public class NorfolkRouting extends SimState	{
     /** Main function allows simulation to be run in stand-alone, non-GUI mode */
     public static void main(String[] args)
     {
-        doLoop(NorfolkRouting.class, args);
+        doLoop(NorfolkCSVTEST.class, args);
         //System.out.println("Exiting..?");
         System.exit(0);
         
