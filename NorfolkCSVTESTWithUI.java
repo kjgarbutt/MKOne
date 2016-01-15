@@ -72,7 +72,6 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
         }
 
 
-
         /**
          * @return name of the simulation
          */
@@ -80,7 +79,6 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
         {
             return "NorfolkCSVTEST";
         }
-
 
 
         /**
@@ -158,7 +156,7 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
             floodPortrayal.setPortrayalForAll(new GeomPortrayal(Color.CYAN, true));
             
             agentPortrayal.setField(world.agents);
-            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 50, true));
+            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 275, true));
 
             display.reset();
             display.setBackdrop(Color.WHITE);
@@ -166,7 +164,6 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
             display.repaint();
 
         }
-
 
 
         /**
@@ -212,7 +209,7 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
         public void quit()
         {
 
-        	System.out.println("Exiting..?");
+        	System.out.println("Exiting");
         	super.quit();
 
             if (displayFrame != null)
