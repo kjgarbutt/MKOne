@@ -32,11 +32,11 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.planargraph.Node;
 
 /**
- * Getting an error when it starts to create the network:
- * Exception in thread "AWT-EventQueue-0" java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Integer
  * 
  * A simple model that locates agents on Norfolk's road network
- * and makes them move from A to B.
+ * and makes them move from A to B, then they change direction 
+ * and head back to the start. The number of agents, their start
+ * and end points is determined by data in NorfolkITNLSOA.csv.
  * 
  * @author KJGarbutt
  *
@@ -77,9 +77,6 @@ public class NorfolkCSVTEST extends SimState	{
         goToWork = val;
     }
 
-    // cheap, hacky, hard-coded way to identify which edges are associated with
-    // goal Nodes. Done because we cannot seem to read in .shp file for goal nodes because
-    // of an NegativeArraySize error? Any suggestions very welcome!
     Integer[] goals =	{
     		//72142, 72176, 72235, 72178, 89178
     		2, 10, 24, 38, 53, 60
@@ -231,6 +228,10 @@ public class NorfolkCSVTEST extends SimState	{
                 //int id_id = Integer.parseInt(bits[11]);
                 System.out.println("Main Agent ID_ID (ROAD_ID): " +id_id);
                 
+                // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
+                String ROAD_ID = bits[11];
+                System.out.println("Main Agent ROAD_ID: " +ROAD_ID);
+               
                 // 3rd column in NorfolkITNLSOA.csv = column D "THEME" e.g. Road Network...
                 //String THEME = bits[3];
                 //System.out.println("Main Agent Theme: " +THEME);
@@ -240,9 +241,6 @@ public class NorfolkCSVTEST extends SimState	{
                 //long TOID = Long.parseLong(bits[0]);
                 //System.out.println("Main Agent TOID: " +TOID);
                 
-                // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
-                String ROAD_ID = bits[11];
-                System.out.println("Main Agent ROAD_ID: " +ROAD_ID);
                 
                 //GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 //		ROAD_ID);
@@ -260,7 +258,7 @@ public class NorfolkCSVTEST extends SimState	{
                 System.out.println("homeNode: " +goals);
                 
                 for (int i = 0; i < 1; i++)	{
-                	//pop; i++)	{ NO IDEA IF THIS MAKES A DIFFERENCE
+                	//pop; i++)	{ // NO IDEA IF THIS MAKES A DIFFERENCE
                     MainAgent a = new MainAgent(this, homeTract, workTract, startingEdge, goalEdge);                    
                     System.out.println("MainAgent 'a': " +this + ", Home Tract: " +homeTract + ", Work Tract: " +workTract + ", Starting Edge: " +startingEdge + ", Goal Edge: " +goalEdge);
                     boolean successfulStart = a.start(this);
