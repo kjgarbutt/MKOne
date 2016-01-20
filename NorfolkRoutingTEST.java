@@ -294,11 +294,11 @@ public class NorfolkRoutingTEST extends SimState	{
             }
 
             d.close();
-
-	        } catch (Exception e) {
+            
+        } catch (Exception e) {
 		    	System.out.println("ERROR: issue with population file: ");
 				e.printStackTrace();
-			}
+		}    
     }
     
 
@@ -333,6 +333,5 @@ public class NorfolkRoutingTEST extends SimState	{
     public static void main(String[] args)	{
         doLoop(NorfolkRoutingTEST.class, args);        
         System.exit(0);
-        
     }
 }
