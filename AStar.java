@@ -1,3 +1,12 @@
+package sim.app.geo.norfolk_routingTEST;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.planargraph.DirectedEdgeStar;
+import com.vividsolutions.jts.planargraph.Node;
+import java.util.ArrayList;
+import java.util.HashMap;
+import sim.util.geo.GeomPlanarGraphDirectedEdge;
+
 /**
  ** AStar.java
  **
@@ -10,16 +19,6 @@
  **
  ** $Id: AStar.java 842 2012-12-18 01:09:18Z mcoletti $
  **/
-package sim.app.geo.norfolk_csvTEST;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.planargraph.DirectedEdgeStar;
-import com.vividsolutions.jts.planargraph.Node;
-import java.util.ArrayList;
-import java.util.HashMap;
-import sim.util.geo.GeomPlanarGraphDirectedEdge;
-
-
 
 @SuppressWarnings("restriction")
 public class AStar
@@ -123,7 +122,6 @@ public class AStar
     }
 
 
-
     /**
      * Takes the information about the given node n and returns the path that
      * found it.
@@ -216,8 +214,7 @@ public class AStar
         GeomPlanarGraphDirectedEdge edgeFrom;
         double gx, hx, fx;
 
-
-
+        
         public AStarNodeWrapper(Node n)
         {
             node = n;

@@ -1,4 +1,4 @@
-package sim.app.geo.norfolk_csvTEST;
+package sim.app.geo.norfolk_routingTEST;
 
 import java.util.ArrayList;
 
@@ -21,17 +21,22 @@ import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
 
 /**
- * A simple agent that moves around randomly, has some attributes like 
- * rate of movement and 'age' that are assigned at random.
+ * 
+ * A simple model that locates agents on Norfolk's road network and makes them
+ * move from A to B, then they change direction and head back to the start.
+ * The process repeats until the user quits. The number of agents, their start
+ * and end points is determined by data in NorfolkITNLSOA.csv and assigned by the
+ * user under 'goals' (approx. Line 80 in main file).
  * 
  * @author KJGarbutt
  *
  */
-public final class MainAgent implements Steppable
-{
+public final class MainAgent implements Steppable	{
     private static final long serialVersionUID = -1113018274619047013L;
-    //////////Parameters ///////////////////////////////////
-    NorfolkCSVTEST world;
+    
+    /////////////////////////Parameters /////////////////////////////
+    
+    NorfolkRoutingTEST world;
     // Residence/Work Attributes
     String homeTract = "";
     String workTract = "";
@@ -41,7 +46,7 @@ public final class MainAgent implements Steppable
     // private Point location;
     private MasonGeometry location; // point that denotes agent's position
     // How much to move the agent by in each step()
-    private double moveRate = 10.00; //0.001
+    private double moveRate = 1000; //0.001;
     private LengthIndexedLine segment = null;
     double startIndex = 0.0; // start position of current line
     double endIndex = 0.0; // end position of current line
@@ -58,13 +63,19 @@ public final class MainAgent implements Steppable
     
     //static private GeometryFactory fact = new GeometryFactory();
 
+    /////////////////////END Parameters //////////////////////////
+    
     /**
 	 * Constructor: specifies parameters for Agents
+	 * Default Wrapper Constructor: provides the default parameters
 	 * 
+	 * @param location - Coordinate indicating the initial position of the Agent
+	 * @param homeNode - Coordinate indicating the Agent's home location
+	 * @param workNode - Coordinate indicating the Agent's workplace
+	 * @param world - reference to the containing NorfolkRouting instance
 	 */
-    public MainAgent(NorfolkCSVTEST g, String homeTract, String workTract,
-            GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge)
-    {
+    public MainAgent(NorfolkRoutingTEST g, String homeTract, String workTract,
+            GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge)	{
 	   world = g;
 	
 	   // set up information about where the node is and where it's going
@@ -81,49 +92,47 @@ public final class MainAgent implements Steppable
 	   updatePosition(startCoord);
 	}
     
-    public MainAgent(NorfolkCSVTEST g, int homeTract, int workTract,
+    public MainAgent(NorfolkRoutingTEST g, int homeTract, int workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
 		// TODO Auto-generated constructor stub
 	}
 
-	public MainAgent(NorfolkCSVTEST g, double homeTract, double workTract,
+	public MainAgent(NorfolkRoutingTEST g, double homeTract, double workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
 		// TODO Auto-generated constructor stub
 	}
+	
+    /////////////////////// ROUTING //////////////////////////
 
 	/** Initialization of an Agent: find an A* path to work!
     *
     * @param state
     * @return whether or not the agent successfully found a path to work
     */
-   public boolean start(NorfolkCSVTEST state)
-   {
+   public boolean start(NorfolkRoutingTEST state)	{
        findNewAStarPath(state);
 
-       if (pathFromHomeToWork.isEmpty())
-       {
+       if (pathFromHomeToWork.isEmpty())	{
            System.out.println("Initialization of agent failed: it is located in a part "
                + "of the network that cannot access the given goal node");
            return false;
-       } else
-       {
+       } else	{
            return true;
        }
    }
 
 
-
-   /** Plots a path between the Agent's home Node and its work Node */
-   private void findNewAStarPath(NorfolkCSVTEST geoTest)
-   {
+   /**
+    * Plots a path between the Agent's home Node and its work Node
+    */
+   private void findNewAStarPath(NorfolkRoutingTEST geoTest)	{
 
        // get the home and work Nodes with which this Agent is associated
        Node currentJunction = geoTest.network.findNode(location.geometry.getCoordinate());
        //System.out.println("currentJunction: " +currentJunction);
        Node destinationJunction = workNode;
 
-       if (currentJunction == null)
-       {
+       if (currentJunction == null)	{
            return; // just a check
        }
        // find the appropriate A* path between them
@@ -132,8 +141,7 @@ public final class MainAgent implements Steppable
            pathfinder.astarPath(currentJunction, destinationJunction);
 
        // if the path works, lay it in
-       if (path != null && path.size() > 0)
-       {
+       if (path != null && path.size() > 0)	{
 
            // save it
            pathFromHomeToWork = path;
@@ -150,9 +158,7 @@ public final class MainAgent implements Steppable
    }
 
 
-
-   double progress(double val)
-   {
+   double progress(double val)	{
        double edgeLength = currentEdge.getLine().getLength();
        double traffic = world.edgeTraffic.get(currentEdge).size();
        double factor = 1000 * edgeLength / (traffic * 5);
@@ -162,24 +168,22 @@ public final class MainAgent implements Steppable
 
 
 
-   /** Called every tick by the scheduler */
-   /** moves the agent along the path */
-   public void step(SimState state)
-   {
+   /**
+    * Called every tick by the scheduler.
+    * Moves the agent along the path.
+    */
+   public void step(SimState state)	{
        // check that we've been placed on an Edge
-       if (segment == null)
-       {
+       if (segment == null)	{
            return;
        } // check that we haven't already reached our destination
-       else if (reachedDestination)
-       {
+       else if (reachedDestination)	{
            return;
        }
 
        // make sure that we're heading in the right direction
-       boolean toWork = ((NorfolkCSVTEST) state).goToWork;
-       if ((toWork && pathDirection < 0) || (!toWork && pathDirection > 0))
-       {
+       boolean toWork = ((NorfolkRoutingTEST) state).goToWork;
+       if ((toWork && pathDirection < 0) || (!toWork && pathDirection > 0))	{
            flipPath();
        }
 
@@ -189,13 +193,11 @@ public final class MainAgent implements Steppable
 
        // check to see if the progress has taken the current index beyond its goal
        // given the direction of movement. If so, proceed to the next edge
-       if (linkDirection == 1 && currentIndex > endIndex)
-       {
+       if (linkDirection == 1 && currentIndex > endIndex)	{
            Coordinate currentPos = segment.extractPoint(endIndex);
            updatePosition(currentPos);
            transitionToNextEdge(currentIndex - endIndex);
-       } else if (linkDirection == -1 && currentIndex < startIndex)
-       {
+       } else if (linkDirection == -1 && currentIndex < startIndex)	{
            Coordinate currentPos = segment.extractPoint(startIndex);
            updatePosition(currentPos);
            transitionToNextEdge(startIndex - currentIndex);
@@ -205,19 +207,17 @@ public final class MainAgent implements Steppable
 
            updatePosition(currentPos);
        }
-
    }
 
 
-
-   /** Flip the agent's path around */
-   void flipPath()
-   {
+   /**
+    * Flip the agent's path around
+    */
+   void flipPath()	{
        reachedDestination = false;
        pathDirection = -pathDirection;
        linkDirection = -linkDirection;
    }
-
 
 
    /**
@@ -225,8 +225,7 @@ public final class MainAgent implements Steppable
     * @param residualMove the amount of distance the agent can still travel
     * this turn
     */
-   void transitionToNextEdge(double residualMove)
-   {
+   void transitionToNextEdge(double residualMove)	{
 
        // update the counter for where the index on the path is
        indexOnPath += pathDirection;
@@ -251,35 +250,31 @@ public final class MainAgent implements Steppable
 
        // check to see if the progress has taken the current index beyond its goal
        // given the direction of movement. If so, proceed to the next edge
-       if (linkDirection == 1 && currentIndex > endIndex)
-       {
+       if (linkDirection == 1 && currentIndex > endIndex)	{
            transitionToNextEdge(currentIndex - endIndex);
-       } else if (linkDirection == -1 && currentIndex < startIndex)
-       {
+       } else if (linkDirection == -1 && currentIndex < startIndex)	{
            transitionToNextEdge(startIndex - currentIndex);
        }
    }
 
-   ///////////// HELPER FUNCTIONS ////////////////////////////
+   ////////////////// HELPER FUNCTIONS ////////////////////////
 
 
-   /** Sets the Agent up to proceed along an Edge
+   /**
+    * Sets the Agent up to proceed along an Edge
     * @param edge the GeomPlanarGraphEdge to traverse next
-    * */
-   void setupEdge(GeomPlanarGraphEdge edge)
-   {
+    */
+   void setupEdge(GeomPlanarGraphEdge edge)	{
 
        // clean up on old edge
-       if (currentEdge != null)
-       {
+       if (currentEdge != null)	{
            ArrayList<MainAgent> traffic = world.edgeTraffic.get(currentEdge);
            traffic.remove(this);
        }
        currentEdge = edge;
 
        // update new edge traffic
-       if (world.edgeTraffic.get(currentEdge) == null)
-       {
+       if (world.edgeTraffic.get(currentEdge) == null)	{
            world.edgeTraffic.put(currentEdge, new ArrayList<MainAgent>());
        }
        world.edgeTraffic.get(currentEdge).add(this);
@@ -294,35 +289,31 @@ public final class MainAgent implements Steppable
        // check to ensure that Agent is moving in the right direction
        double distanceToStart = line.getStartPoint().distance(location.geometry),
            distanceToEnd = line.getEndPoint().distance(location.geometry);
-       if (distanceToStart <= distanceToEnd)
-       { // closer to start
+       if (distanceToStart <= distanceToEnd)	{ // closer to start
            currentIndex = startIndex;
            linkDirection = 1;
-       } else if (distanceToEnd < distanceToStart)
-       { // closer to end
+       } else if (distanceToEnd < distanceToStart)	{ // closer to end
            currentIndex = endIndex;
            linkDirection = -1;
        }
-
    }
 
 
-
-   /** move the agent to the given coordinates */
-   public void updatePosition(Coordinate c)
-   {
+   /**
+    * Move the agent to the given coordinates
+    */
+   public void updatePosition(Coordinate c)	{
        pointMoveTo.setCoordinate(c);
-//       location.geometry.apply(pointMoveTo);
+       // location.geometry.apply(pointMoveTo);
 
        world.agents.setGeometryLocation(location, pointMoveTo);
    }
 
 
-
-   /** return geometry representing agent location */
-   public MasonGeometry getGeometry()
-   {
+   /**
+    * Return geometry representing agent location
+    */
+   public MasonGeometry getGeometry()	{
        return location;
    }
-
 }

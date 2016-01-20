@@ -1,4 +1,4 @@
-package sim.app.geo.norfolk_csvTEST;
+package sim.app.geo.norfolk_routingTEST;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -13,8 +13,6 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import sim.app.geo.gridlock.Agent;
-import sim.app.geo.gridlock.Gridlock;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.geo.GeomVectorField;
@@ -33,24 +31,30 @@ import com.vividsolutions.jts.planargraph.Node;
 
 /**
  * 
- * A simple model that locates agents on Norfolk's road network
- * and makes them move from A to B, then they change direction 
- * and head back to the start. The number of agents, their start
- * and end points is determined by data in NorfolkITNLSOA.csv.
+ * A simple model that locates agents on Norfolk's road network and makes them
+ * move from A to B, then they change direction and head back to the start.
+ * The process repeats until the user quits. The number of agents, their start
+ * and end points is determined by data in NorfolkITNLSOA.csv and assigned by the
+ * user under 'goals' (approx. Line 84).
  * 
  * @author KJGarbutt
  *
  */
-public class NorfolkCSVTEST extends SimState	{
+public class NorfolkRoutingTEST extends SimState	{
+	
 	/////////////// Model Parameters ///////////////////////////////////
-    private static final long serialVersionUID = -4554882816749973618L;
+    
+	private static final long serialVersionUID = -4554882816749973618L;
 
 	/////////////// Containers ///////////////////////////////////////
+    
     public GeomVectorField roads = new GeomVectorField();
     public GeomVectorField lsoa = new GeomVectorField();
     public GeomVectorField flood = new GeomVectorField();
     public GeomVectorField agents = new GeomVectorField();
 
+    /////////////// Network ///////////////////////////////////////
+    
     // Stores the road network connections
     public GeomPlanarGraph network = new GeomPlanarGraph();
     public GeomVectorField junctions = new GeomVectorField(); // nodes for intersections
@@ -78,69 +82,98 @@ public class NorfolkCSVTEST extends SimState	{
     }
 
     Integer[] goals =	{
-    		//72142, 72176, 72235, 72178, 89178
-    		2, 10, 24, 38, 53, 60
+    		// Relates to ROAD_ID in NorfolkITNLSOA.csv/.shp...
+    		// 30250 = Norfolk & Norwich Hospital
+    		// 74858 = James Paget Hospital (Does not work!)
+    		// 18081 = Queen Elizabeth Hospital
+    		30250, 18081, 519
     };
 
     
-    /** Constructor */
-    public NorfolkCSVTEST(long seed)
-    {
+    ///////////////////////////////////////////////////////////////////////////
+	/////////////////////////// BEGIN FUNCTIONS ///////////////////////////////
+	///////////////////////////////////////////////////////////////////////////	
+    
+    /**
+     * Constructor
+     */
+    public NorfolkRoutingTEST(long seed)	{
         super(seed);
     }
 
     
-    /** Initialization */
+    /**
+     * Initialization
+     */
     @Override
     public void start() {
         super.start();
-        System.out.println("Starting...");
+        System.out.println("Reading shapefiles...");
 
-        // read in data
+		//////////////////////////////////////////////
+		///////////// READING IN DATA ////////////////
+		//////////////////////////////////////////////
+        
         try {
-            // read in the roads to create the transit network
-            System.out.println("Reading roads layer: " +roads);
-            URL roadsFile = NorfolkCSVTEST.class.getResource("data/NorfolkITNLSOA.shp");
+            // read in the roads shapefile to create the transit network
+            URL roadsFile = NorfolkRoutingTEST.class.getResource
+            		("data/NorfolkITNLSOA.shp");
             ShapeFileImporter.read(roadsFile, roads);
+            System.out.println("Roads shapefile: " +roadsFile);
+            
             Envelope MBR = roads.getMBR();
 
-            // read in the tracts to create the background
-            System.out.println("Reading areas layer: " +lsoa);         
-            URL areasFile = NorfolkCSVTEST.class.getResource("data/NorfolkLSOA.shp");
+            // read in the LSOA shapefile to create the background        
+            URL areasFile = NorfolkRoutingTEST.class.getResource
+            		("data/NorfolkLSOA.shp");
             ShapeFileImporter.read(areasFile, lsoa);
+            System.out.println("LSOA shapefile: " +areasFile);
 
             MBR.expandToInclude(lsoa.getMBR());
 
-            // read in the tracts to create the background
-            System.out.println("Reading floods layer: " +flood);         
-            URL floodFile = NorfolkCSVTEST.class.getResource("data/flood_zone_3_010k_NORFOLK_ONLY.shp");
+            // read in the floods file     
+            URL floodFile = NorfolkRoutingTEST.class.getResource
+            		("data/flood_zone_3_010k_NORFOLK_ONLY.shp");
             ShapeFileImporter.read(floodFile, flood);
+            System.out.println("Flood shapefile: " +floodFile);
+            System.out.println();
             
             MBR.expandToInclude(flood.getMBR());
             
             createNetwork();
-            System.out.println("Creating network from: " +roads);
 
-            // update so that everyone knows what the standard MBR is
+            //////////////////////////////////////////////
+            ////////////////// CLEANUP ///////////////////
+            //////////////////////////////////////////////
+
+            // standardize the MBRs so that the visualization lines up
+            // and everyone knows what the standard MBR is
             roads.setMBR(MBR);
             lsoa.setMBR(MBR);
             flood.setMBR(MBR);
-
+            
+            //////////////////////////////////////////////
+            ////////////////// AGENTS ////////////////////
+            //////////////////////////////////////////////
+            
             // initialize agents
             populate("data/NorfolkITNLSOA.csv");
             agents.setMBR(MBR);
 
             // Ensure that the spatial index is updated after all the agents move
-            schedule.scheduleRepeating( agents.scheduleSpatialIndexUpdater(), Integer.MAX_VALUE, 1.0);
+            schedule.scheduleRepeating( agents.scheduleSpatialIndexUpdater(),
+            		Integer.MAX_VALUE, 1.0);
 
-            /** Steppable that flips Agent paths once everyone reaches their destinations*/
+            /**
+             * Steppable that flips Agent paths once everyone reaches their destinations
+             */
             Steppable flipper = new Steppable()	{
 				private static final long serialVersionUID = 1L;
 
 				@Override
                 public void step(SimState state)	{
 
-					NorfolkCSVTEST gstate = (NorfolkCSVTEST) state;
+					NorfolkRoutingTEST gstate = (NorfolkRoutingTEST) state;
 
                     // pass to check if anyone has not yet reached work
                     for (MainAgent a : gstate.agentList)	{
@@ -167,12 +200,12 @@ public class NorfolkCSVTEST extends SimState	{
     }
 
 
-    /** Create the road network the agents will traverse
-     *
+    /**
+     * Create the road network the agents will traverse
      */
-    private void createNetwork()
-    {
-    	System.out.println("Creating road network..?");
+    private void createNetwork()	{
+    	System.out.println("Creating road network...");
+    	System.out.println();
     	network.createFromGeomField(roads);
  
         for (Object o : network.getEdges())	{
@@ -192,11 +225,12 @@ public class NorfolkCSVTEST extends SimState	{
      * @param filename
      */
     public void populate(String filename)	{
-    	System.out.println("Populating model...");
+    	//System.out.println("Populating model: ");
         try	{
-            String filePath = NorfolkCSVTEST.class.getResource(filename).getPath();
+            String filePath = NorfolkRoutingTEST.class.getResource(filename).getPath();
             FileInputStream fstream = new FileInputStream(filePath);
-            System.out.println("Reading population file: " +filePath);
+            System.out.println("Populating model: " +filePath);
+            System.out.println();
             
             BufferedReader d = new BufferedReader(new InputStreamReader(fstream));
             String s;
@@ -207,60 +241,41 @@ public class NorfolkCSVTEST extends SimState	{
             while ((s = d.readLine()) != null)	{ 
                 String[] bits = s.split(",");
                 
-                // 24th column in NorfolkITNLSOA.csv = column Y "LSOA_ID" e.g. 120, 145, 317...
-                //int pop = Integer.parseInt(bits[24]); // TODO: reset me if desired!
+                // 39th column in NorfolkITNLSOA.csv = column AN "POP" e.g. 1, 10, 100...
                 int pop = Integer.parseInt(bits[39]);
-                System.out.println("Main Agent POP: " +pop);
+                //System.out.println("Main Agent Population: " +pop);
                 
-                // 40th column in NorfolkITNLSOA.csv = column AO "Work1" e.g. 1, 1, 1...
+                // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
+                String homeTract = bits[11];
+                //System.out.println("Main Agent Home (LSOA_ID): " +homeTract);
+                
+                // 40th column in NorfolkITNLSOA.csv = column AO "Work1" e.g. 307, 143, 13...
                 String workTract = bits[40];
-                //int workTract = Integer.parseInt(bits[40]);
-                System.out.println("Main Agent work (WORK): " +workTract);
+                //System.out.println("Main Agent Work (WORK): " +workTract);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
-                String homeTract = bits[24];
-                //int homeTract = Integer.parseInt(bits[11]);
-                System.out.println("Main Agent home (LSOA_ID): " +homeTract);
-                
-                // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
-                //String id_id = bits[11];
                 String id_id = bits[11];
-                //int id_id = Integer.parseInt(bits[11]);
-                System.out.println("Main Agent ID_ID (ROAD_ID): " +id_id);
+                //System.out.println("Main Agent ID_ID (ROAD_ID): " +id_id);
                 
                 // 11th column in NorfolkITNLSOA.csv = column L "ROAD_ID" e.g. 1, 2, 3...
                 String ROAD_ID = bits[11];
-                System.out.println("Main Agent ROAD_ID: " +ROAD_ID);
-               
-                // 3rd column in NorfolkITNLSOA.csv = column D "THEME" e.g. Road Network...
-                //String THEME = bits[3];
-                //System.out.println("Main Agent Theme: " +THEME);
+                //System.out.println("Main Agent ROAD_ID: " +ROAD_ID);
                 
-                // 0th column in NorfolkITNLSOA.csv = column A "TOID" e.g. 4000000026869030...
-                //String TOID = bits[0];
-                //long TOID = Long.parseLong(bits[0]);
-                //System.out.println("Main Agent TOID: " +TOID);
-                
-                
-                //GeomPlanarGraphEdge startingEdge = idsToEdges.get(
-                //		ROAD_ID);
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
-                //System.out.println("Main Agent TOID is still: " +TOID);
-                System.out.println("Main Agent ROAD_ID is sill: " +ROAD_ID);
-                System.out.println("startingEdge: " +startingEdge);
-                //System.out.println("idsToEdges: " +idsToEdges);
-                
                 GeomPlanarGraphEdge goalEdge = idsToEdges.get(
                     goals[ random.nextInt(goals.length)]);
-                System.out.println("goalEdge: " +goalEdge);
-                System.out.println("goals: " +goals);
-                System.out.println("homeNode: " +goals);
+                //System.out.println("startingEdge: " +startingEdge);
+                //System.out.println("idsToEdges: " +idsToEdges);
+                //System.out.println("goalEdge: " +goalEdge);
+                //System.out.println("goals: " +goals);
+                //System.out.println("homeNode: " +goals);
                 
-                for (int i = 0; i < 1; i++)	{
-                	//pop; i++)	{ // NO IDEA IF THIS MAKES A DIFFERENCE
+                for (int i = 0; i < pop; i++)	{
+                	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
                     MainAgent a = new MainAgent(this, homeTract, workTract, startingEdge, goalEdge);                    
-                    System.out.println("MainAgent 'a': " +this + ", Home Tract: " +homeTract + ", Work Tract: " +workTract + ", Starting Edge: " +startingEdge + ", Goal Edge: " +goalEdge);
+                    System.out.println("Agent " + i + ":" + " Home: " +homeTract + ";"
+                    		+ "	Work: " +workTract + ",	Starting Edge: " +startingEdge);
                     boolean successfulStart = a.start(this);
                     //System.out.println("Starting...");
 
@@ -271,24 +286,19 @@ public class NorfolkCSVTEST extends SimState	{
 
                     // MasonGeometry newGeometry = new MasonGeometry(a.getGeometry());
                     MasonGeometry newGeometry = a.getGeometry();
-                    //System.out.println("Setting geometry...");
                     newGeometry.isMovable = true;
                     agents.addGeometry(newGeometry);
                     agentList.add(a);
                     schedule.scheduleRepeating(a);
-                    //System.out.println("Adding Agents and scheduling...");
                 }
             }
 
-            // clean up
             d.close();
-            System.out.println("Cleaning...");
 
 	        } catch (Exception e) {
 		    	System.out.println("ERROR: issue with population file: ");
 				e.printStackTrace();
 			}
-
     }
     
 
@@ -300,8 +310,7 @@ public class NorfolkCSVTEST extends SimState	{
      * Nodes will belong to a planar graph populated from LineString network.
      */
     private void addIntersectionNodes(Iterator<?> nodeIterator,
-                                      GeomVectorField intersections)
-    {
+                                      GeomVectorField intersections)	{
         GeometryFactory fact = new GeometryFactory();
         Coordinate coord = null;
         Point point = null;
@@ -314,18 +323,16 @@ public class NorfolkCSVTEST extends SimState	{
 
             junctions.addGeometry(new MasonGeometry(point));
             counter++;
-            
         }
     }
 
 
-    /** Main function allows simulation to be run in stand-alone, non-GUI mode */
-    public static void main(String[] args)
-    {
-        doLoop(NorfolkCSVTEST.class, args);
-        //System.out.println("Exiting..?");
+    /**
+     * Main function allows simulation to be run in stand-alone, non-GUI mode
+     */
+    public static void main(String[] args)	{
+        doLoop(NorfolkRoutingTEST.class, args);        
         System.exit(0);
         
     }
-
 }

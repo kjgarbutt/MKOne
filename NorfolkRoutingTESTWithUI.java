@@ -1,4 +1,4 @@
-package sim.app.geo.norfolk_csvTEST;
+package sim.app.geo.norfolk_routingTEST;
 
 import com.vividsolutions.jts.io.ParseException;
 
@@ -28,12 +28,17 @@ import sim.portrayal.simple.OvalPortrayal2D;
 import sim.util.media.chart.TimeSeriesChartGenerator;
 
 /**
- * A simple model that locates agents on Norfolk's road network
- * and makes them move from A to B.
+ * 
+ * A simple model that locates agents on Norfolk's road network and makes them
+ * move from A to B, then they change direction and head back to the start.
+ * The process repeats until the user quits. The number of agents, their start
+ * and end points is determined by data in NorfolkITNLSOA.csv and assigned by the
+ * user under 'goals' (approx. Line 80 in main file).
  * 
  * @author KJGarbutt
+ *
  */
-public class NorfolkCSVTESTWithUI extends GUIState	{
+public class NorfolkRoutingTESTWithUI extends GUIState	{
     private Display2D display;
     private JFrame displayFrame;
 
@@ -51,22 +56,23 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
     XYSeries minSpeed;
     
     ///////////////////////////////////////////////////////////////////////////
-    /////////////////////////// BEGIN functions ///////////////////////////////
+    /////////////////////////// BEGIN FUNCTIONS ///////////////////////////////
     ///////////////////////////////////////////////////////////////////////////	
     
-    /** Default constructor */
-    protected NorfolkCSVTESTWithUI(SimState state)
-        {
+    /**
+     * Default constructor
+     */
+    protected NorfolkRoutingTESTWithUI(SimState state)	{
             super(state);
         }
 
         /**
-         * Main function
+         * Main function to run the simulation
          * @param args
          */
-        public static void main(String[] args)
-        {
-        	NorfolkCSVTESTWithUI simple = new NorfolkCSVTESTWithUI(new NorfolkCSVTEST(System.currentTimeMillis()));
+        public static void main(String[] args)	{
+        	NorfolkRoutingTESTWithUI simple = new NorfolkRoutingTESTWithUI(
+        			new NorfolkRoutingTEST(System.currentTimeMillis()));
             Console c = new Console(simple);
             c.setVisible(true);
         }
@@ -75,9 +81,8 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
         /**
          * @return name of the simulation
          */
-        public static String getName()
-        {
-            return "NorfolkCSVTEST";
+        public static String getName()	{
+            return "NorfolkRouting";
         }
 
 
@@ -85,22 +90,19 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
          *  This must be included to have model tab, which allows mid-simulation
          *  modification of the coefficients
          */
-        public Object getSimulationInspectedObject()
-        {
+        public Object getSimulationInspectedObject()	{
             return state;
         }  // non-volatile
-
 
 
         /**
          * Called when starting a new run of the simulation. Sets up the portrayals
          * and chart data.
          */
-        public void start()
-        {
+        public void start()	{
             super.start();
 
-            NorfolkCSVTEST world = (NorfolkCSVTEST) state;
+            NorfolkRoutingTEST world = (NorfolkRoutingTEST) state;
 
             maxSpeed = new XYSeries("Max Speed");
             avgSpeed = new XYSeries("Average Speed");
@@ -110,28 +112,22 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
             trafficChart.addSeries(avgSpeed, null);
             trafficChart.addSeries(minSpeed, null);
 
-            state.schedule.scheduleRepeating(new Steppable()
-            {
+            state.schedule.scheduleRepeating(new Steppable()	{
 
-                public void step(SimState state)
-                {
-                	NorfolkCSVTEST world = (NorfolkCSVTEST) state;
+                public void step(SimState state)	{
+                	NorfolkRoutingTEST world = (NorfolkRoutingTEST) state;
                     double maxS = 0, minS = 10000, avgS = 0, count = 0;
-                    for (MainAgent a : world.agentList)
-                    {
-                        if (a.reachedDestination)
-                        {
+                    for (MainAgent a : world.agentList)	{
+                        if (a.reachedDestination)	{
                             continue;
                         }
                         count++;
                         double speed = Math.abs(a.speed);
                         avgS += speed;
-                        if (speed > maxS)
-                        {
+                        if (speed > maxS)	{
                             maxS = speed;
                         }
-                        if (speed < minS)
-                        {
+                        if (speed < minS)	{
                             minS = speed;
                         }
                     }
@@ -141,58 +137,61 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
                     minSpeed.add(time, minS, true);
                     avgSpeed.add(time, avgS, true);
                 }
-
             });
 
-            roadsPortrayal.setField(world.roads);
+        	/**
+        	 * Sets up the portrayals of objects within the map visualization.
+        	 */
+            
+            // tractsPortrayal.setPortrayalForAll(new PolyPortrayal());//(Color.GREEN,true));
             // roadsPortrayal.setPortrayalForAll(new RoadPortrayal());//GeomPortrayal(Color.DARK_GRAY,0.001,false));
-            roadsPortrayal.setPortrayalForAll(new GeomPortrayal(Color.DARK_GRAY, 0.001, false));
+            
+            roadsPortrayal.setField(world.roads);
+            roadsPortrayal.setPortrayalForAll(new GeomPortrayal(Color.DARK_GRAY, 0.0005, false));
 
             lsoaPortrayal.setField(world.lsoa);
-            // tractsPortrayal.setPortrayalForAll(new PolyPortrayal());//(Color.GREEN,true));
             lsoaPortrayal.setPortrayalForAll(new GeomPortrayal(Color.LIGHT_GRAY, true));
 
             floodPortrayal.setField(world.flood);
             floodPortrayal.setPortrayalForAll(new GeomPortrayal(Color.CYAN, true));
             
             agentPortrayal.setField(world.agents);
-            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 275, true));
+            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 200, true));
 
             display.reset();
             display.setBackdrop(Color.WHITE);
-
             display.repaint();
 
         }
 
 
         /**
-         * Called when first beginning a WaterWorldWithUI. Sets up the display window,
-         * the JFrames, and the chart structure.
+         * Initializes the simulation visualization. Sets up the display
+         * window, the JFrames, and the chart structure.
          */
         public void init(Controller c)
         {
             super.init(c);
 
-            // make the displayer
+            // makes the displayer and visualises the maps
             display = new Display2D(1300, 600, this);
             // turn off clipping
             // display.setClipping(false);
 
             displayFrame = display.createFrame();
-            displayFrame.setTitle("NorfolkCSVTEST");
+            displayFrame.setTitle("NorfolkRoutingTEST");
             c.registerFrame(displayFrame); // register the frame so it appears in
+            
             // the "Display" list
             displayFrame.setVisible(true);
-
             display.attach(lsoaPortrayal, "LSOA");
             display.attach(floodPortrayal, "Flood Zone");
             display.attach(roadsPortrayal, "Roads");
             display.attach(agentPortrayal, "Agents");
 
-            // CHART
+            ////////////////////// CHART ///////////////////////////
             trafficChart = new TimeSeriesChartGenerator();
-            trafficChart.setTitle("Traffic Statistics");
+            trafficChart.setTitle("Traffic Stats");
             trafficChart.setYAxisLabel("Speed");
             trafficChart.setXAxisLabel("Time");
             JFrame chartFrame = trafficChart.createFrame(this);
@@ -201,23 +200,17 @@ public class NorfolkCSVTESTWithUI extends GUIState	{
 
         }
 
-
-
+        
         /**
-         * called when quitting a simulation. Does appropriate garbage collection.
+         * Quits the simulation and cleans up.
          */
-        public void quit()
-        {
-
-        	System.out.println("Exiting");
+        public void quit()	{
         	super.quit();
 
-            if (displayFrame != null)
-            {
+            if (displayFrame != null)	{
                 displayFrame.dispose();
             }
             displayFrame = null; // let gc
             display = null; // let gc
         }
-
     }
