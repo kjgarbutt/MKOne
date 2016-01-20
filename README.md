@@ -1,9 +1,7 @@
-# norfolk_routing
-
-"norfolk_routing" is adapted from the MASON demo, "Gridlock", by Sarah Wise, Mark Coletti, and Andrew Crooks.
+# norfolk_routingTEST
         
-        It shows how to import GIS data, and how to move agents when they are limited to GIS defined paths.
-        The simulation starts by reading GIS data describing the road network of Norfolk.
-        The simulation reads a .CSV file and places agents on the road network and assigns them destinations.
-        The agents then head towards their destinations.
-        Once they arrive, they return to their start points.
+	"Norfolk Routing" is adapted from the MASON demo, "Gridlock", made by Sarah Wise, Mark Coletti, and Andrew Crooks. It shows how to import GIS data, how to create agents, and how to move those agents from A to B when they are limited to paths defined by the GIS data.
+
+        The simulation starts by reading and displaying GIS data describing the road network of Norfolk, the political boundaries (LSOA), and the area's flood zone. The simulation reads a .CSV file that includes road network data and demographic data and places agents on the road network at pre-assigned locations. These agents are also assigned destinations by the user ('goals').
+          When the simulation starts, the agents determine the shortest path (A*) to their destination and move towards their destinations.
+          Once they arrive, the agents wait for all other agents to arrive before they return to their start points. The cycle continues until ended by the user.
