@@ -1,24 +1,19 @@
-package sim.app.geo.norfolk_routingTEST;
+package sim.app.geo.MKOne;
 
 import java.util.ArrayList;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LengthIndexedLine;
-import com.vividsolutions.jts.planargraph.DirectedEdgeStar;
-import com.vividsolutions.jts.planargraph.Node;
-
-//import sim.app.geo.NorfolkCSVTEST.AStar;
-//import sim.app.geo.NorfolkCSVTEST.MainAgent;
-//import sim.app.geo.NorfolkCSVTEST.NorfolkCSVTEST;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.util.geo.GeomPlanarGraphDirectedEdge;
 import sim.util.geo.GeomPlanarGraphEdge;
 import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.linearref.LengthIndexedLine;
+import com.vividsolutions.jts.planargraph.Node;
 
 /**
  * 
@@ -34,9 +29,11 @@ import sim.util.geo.PointMoveTo;
 public final class MainAgent implements Steppable	{
     private static final long serialVersionUID = -1113018274619047013L;
     
-    /////////////////////////Parameters /////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    //////////////////////// PARAMETERS ////////////////////////////
+    ////////////////////////////////////////////////////////////////
     
-    NorfolkRoutingTEST world;
+    MKOne world;
     // Residence/Work Attributes
     String homeTract = "";
     String workTract = "";
@@ -46,7 +43,7 @@ public final class MainAgent implements Steppable	{
     // private Point location;
     private MasonGeometry location; // point that denotes agent's position
     // How much to move the agent by in each step()
-    private double moveRate = 1000; //0.001;
+    private double moveRate = 750; //0.001;
     private LengthIndexedLine segment = null;
     double startIndex = 0.0; // start position of current line
     double endIndex = 0.0; // end position of current line
@@ -74,7 +71,7 @@ public final class MainAgent implements Steppable	{
 	 * @param workNode - Coordinate indicating the Agent's workplace
 	 * @param world - reference to the containing NorfolkRouting instance
 	 */
-    public MainAgent(NorfolkRoutingTEST g, String homeTract, String workTract,
+    public MainAgent(MKOne g, String homeTract, String workTract,
             GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge)	{
 	   world = g;
 	
@@ -92,26 +89,22 @@ public final class MainAgent implements Steppable	{
 	   updatePosition(startCoord);
 	}
     
-    public MainAgent(NorfolkRoutingTEST g, int homeTract, int workTract,
+    public MainAgent(MKOne g, int homeTract, int workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
-		// TODO Auto-generated constructor stub
 	}
+    
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////// ROUTING /////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
-	public MainAgent(NorfolkRoutingTEST g, double homeTract, double workTract,
-			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
-		// TODO Auto-generated constructor stub
-	}
-	
-    /////////////////////// ROUTING //////////////////////////
-
+    
 	/** Initialization of an Agent: find an A* path to work!
     *
     * @param state
     * @return whether or not the agent successfully found a path to work
     */
-   public boolean start(NorfolkRoutingTEST state)	{
+   public boolean start(MKOne state)	{
        findNewAStarPath(state);
-
        if (pathFromHomeToWork.isEmpty())	{
            System.out.println("Initialization of agent failed: it is located in a part "
                + "of the network that cannot access the given goal node");
@@ -125,11 +118,10 @@ public final class MainAgent implements Steppable	{
    /**
     * Plots a path between the Agent's home Node and its work Node
     */
-   private void findNewAStarPath(NorfolkRoutingTEST geoTest)	{
+   private void findNewAStarPath(MKOne geoTest)	{
 
        // get the home and work Nodes with which this Agent is associated
        Node currentJunction = geoTest.network.findNode(location.geometry.getCoordinate());
-       //System.out.println("currentJunction: " +currentJunction);
        Node destinationJunction = workNode;
 
        if (currentJunction == null)	{
@@ -167,7 +159,6 @@ public final class MainAgent implements Steppable	{
    }
 
 
-
    /**
     * Called every tick by the scheduler.
     * Moves the agent along the path.
@@ -182,7 +173,7 @@ public final class MainAgent implements Steppable	{
        }
 
        // make sure that we're heading in the right direction
-       boolean toWork = ((NorfolkRoutingTEST) state).goToWork;
+       boolean toWork = ((MKOne) state).goToWork1;
        if ((toWork && pathDirection < 0) || (!toWork && pathDirection > 0))	{
            flipPath();
        }
@@ -235,15 +226,15 @@ public final class MainAgent implements Steppable	{
        if ((pathDirection > 0 && indexOnPath >= pathFromHomeToWork.size())
            || (pathDirection < 0 && indexOnPath < 0))// depends on where you're going!
        {
-           System.out.println(this + " has reached its destination");
+    	   System.out.println(this + " has reached its destination");
            reachedDestination = true;
            indexOnPath -= pathDirection; // make sure index is correct
            return;
        }
 
        // move to the next edge in the path
-       GeomPlanarGraphEdge edge =
-           (GeomPlanarGraphEdge) pathFromHomeToWork.get(indexOnPath).getEdge();
+       GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) 
+    		   pathFromHomeToWork.get(indexOnPath).getEdge();
        setupEdge(edge);
        speed = progress(residualMove);
        currentIndex += speed;
@@ -258,7 +249,7 @@ public final class MainAgent implements Steppable	{
    }
 
    ////////////////// HELPER FUNCTIONS ////////////////////////
-
+   
 
    /**
     * Sets the Agent up to proceed along an Edge

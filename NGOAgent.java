@@ -1,12 +1,7 @@
-package sim.app.geo.norfolk_routingTEST;
+package sim.app.geo.MKOne;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LengthIndexedLine;
-import com.vividsolutions.jts.planargraph.DirectedEdgeStar;
-import com.vividsolutions.jts.planargraph.Node;
+import java.util.ArrayList;
+
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.util.geo.GeomPlanarGraphDirectedEdge;
@@ -14,200 +9,303 @@ import sim.util.geo.GeomPlanarGraphEdge;
 import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.linearref.LengthIndexedLine;
+import com.vividsolutions.jts.planargraph.Node;
+
 /**
- * A simple agent that moves around randomly, has some attributes like 
- * rate of movement and 'age' that are assigned at random.
+ * 
+ * A simple model that locates agents on Norfolk's road network and makes them
+ * move from A to B, then they change direction and head back to the start.
+ * The process repeats until the user quits. The number of agents, their start
+ * and end points is determined by data in NorfolkITNLSOA.csv and assigned by the
+ * user under 'goals' (approx. Line 80 in main file).
  * 
  * @author KJGarbutt
  *
  */
-public class NGOAgent implements Steppable {
+public final class NGOAgent implements Steppable	{
     private static final long serialVersionUID = -1113018274619047013L;
     
-    //////////Parameters ///////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    //////////////////////// PARAMETERS ////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    
+    MKOne world;
+    // Residence/Work Attributes
+    String homeTract = "";
+    String workTract = "";
+    Node homeNode = null;
+    Node workNode = null;
+    // point that denotes agent's position
+    // private Point location;
     private MasonGeometry location; // point that denotes agent's position
+    // How much to move the agent by in each step()
+    private double moveRate = 1000; //0.001;
     private LengthIndexedLine segment = null;
     double startIndex = 0.0; // start position of current line
     double endIndex = 0.0; // end position of current line
     double currentIndex = 0.0; // current location along line
+    GeomPlanarGraphEdge currentEdge = null;
+    int linkDirection = 1;
+    double speed = 0; // useful for graph
+    ArrayList<GeomPlanarGraphDirectedEdge> pathFromHomeToWork =
+        new ArrayList<GeomPlanarGraphDirectedEdge>();
+    int indexOnPath = 0;
+    int pathDirection = 1;
+    boolean reachedDestination = false;
     PointMoveTo pointMoveTo = new PointMoveTo();
     
-    //////////Attributes ///////////////////////////////////
-    private double basemoveRate = 200.0; // The base speed of the agent.
-    // How much to move the agent by in each step(); may become negative if
-    // agent is moving from the end to the start of current line.
-    private double moveRate = basemoveRate;
-    // Used by agent to walk along line segment; assigned in setNewRoute()
+    //static private GeometryFactory fact = new GeometryFactory();
 
-    static private GeometryFactory fact = new GeometryFactory();
-
-    /**
-	 * Constructor: specifies parameters for Agents
-	 * 
-	 */
-    public NGOAgent(NorfolkRoutingTEST state)	{
-        location = new MasonGeometry(fact.createPoint(new Coordinate(10, 10))); // magic numbers
-        location.isMovable = true;
-        // Find the first line segment and set our position over the start coordinate.
-        int posStart = state.random.nextInt(state.roads.getGeometries().numObjs);
-        MasonGeometry mg = (MasonGeometry) state.roads.getGeometries().objs[posStart];
-        setNewRoute((LineString) mg.getGeometry(), true);
-        /*
-        // Now set up attributes for this agent
-        if (state.random.nextBoolean())	{
-            location.addStringAttribute("TYPE", "MOBILE");
-
-            int age = (int) (20.0 + 2.0 * state.random.nextGaussian());
-
-            location.addIntegerAttribute("AGE", age);
-        }
-        else	{
-            location.addStringAttribute("TYPE", "ELDERLY");
-
-            int age = (int) (40.0 + 9.0 * state.random.nextGaussian());
-
-            location.addIntegerAttribute("AGE", age);
-        }
-
-        // Not everyone walks at the same speed so mix it up
-       basemoveRate *= Math.abs(state.random.nextGaussian());
-       location.addDoubleAttribute("MOVE RATE", basemoveRate);
-       */
-    }
+    /////////////////////END Parameters //////////////////////////
     
     /**
-     * @return geometry representing agent location
-     */
-    public MasonGeometry getGeometry()	{
-        return location;
-    }
-   
-    // true if the agent has arrived at the target intersection
-    private boolean arrived()    {
-        // If we have a negative move rate the agent is moving from the end to
-        // the start, else the agent is moving in the opposite direction.
-        if ((moveRate > 0 && currentIndex >= endIndex)
-            || (moveRate < 0 && currentIndex <= startIndex))
-        {
-            return true;
-        }
+	 * Constructor: specifies parameters for Agents
+	 * Default Wrapper Constructor: provides the default parameters
+	 * 
+	 * @param location - Coordinate indicating the initial position of the Agent
+	 * @param homeNode - Coordinate indicating the Agent's home location
+	 * @param workNode - Coordinate indicating the Agent's workplace
+	 * @param world - reference to the containing NorfolkRouting instance
+	 */
+    public NGOAgent(MKOne g, String homeTract, String workTract,
+            GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge)	{
+	   world = g;
+	
+	   // set up information about where the node is and where it's going
+	   homeNode = startingEdge.getDirEdge(0).getFromNode();
+	   workNode = goalEdge.getDirEdge(0).getToNode();
+	   homeTract = homeTract;
+	   workTract = workTract;
+	
+	   // set the location to be displayed
+	   GeometryFactory fact = new GeometryFactory();
+	   location = new MasonGeometry(fact.createPoint(new Coordinate(10, 10))) ;
+	   Coordinate startCoord = null;
+	   startCoord = homeNode.getCoordinate();
+	   updatePosition(startCoord);
+	}
+    
+    public NGOAgent(MKOne g, int homeTract, int workTract,
+			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
+	}
+	
+    
+    /////////////////////// ROUTING //////////////////////////
 
-        return false;
-    }
+	/** Initialization of an Agent: find an A* path to work!
+    *
+    * @param state
+    * @return whether or not the agent successfully found a path to work
+    */
+   public boolean start(MKOne state)	{
+       findNewAStarPath(state);
 
-    /**
-     * @return string indicating whether we are "FACULTY" or a "STUDENT"
-     */
-    public String getType()	{
-        return location.getStringAttribute("TYPE");
-    }
+       if (pathFromHomeToWork.isEmpty())	{
+           System.out.println("Initialization of agent failed: it is located in a part "
+               + "of the network that cannot access the given goal node");
+           return false;
+       } else	{
+           return true;
+       }
+   }
 
-    // randomly selects an adjacent route to traverse
-    private void findNewPath(NorfolkRoutingTEST geoTest)    {
-        // find all the adjacent junctions
-        Node currentJunction = geoTest.network.findNode(location.getGeometry().getCoordinate());
 
-        if (currentJunction != null)	{
-            DirectedEdgeStar directedEdgeStar = currentJunction.getOutEdges();
-            Object[] edges = directedEdgeStar.getEdges().toArray();
+   /**
+    * Plots a path between the Agent's home Node and its work Node
+    */
+   private void findNewAStarPath(MKOne geoTest)	{
 
-            if (edges.length > 0)	{
-                // pick one randomly
-                int i = geoTest.random.nextInt(edges.length);
-                GeomPlanarGraphDirectedEdge directedEdge = (GeomPlanarGraphDirectedEdge) edges[i];
-                GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) directedEdge.getEdge();
+       // get the home and work Nodes with which this Agent is associated
+       Node currentJunction = geoTest.network.findNode(location.geometry.getCoordinate());
+       //System.out.println("currentJunction: " +currentJunction);
+       Node destinationJunction = workNode;
 
-                // and start moving along it
-                LineString newRoute = edge.getLine();
-                Point startPoint = newRoute.getStartPoint();
-                Point endPoint = newRoute.getEndPoint();
+       if (currentJunction == null)	{
+           return; // just a check
+       }
+       // find the appropriate A* path between them
+       AStar pathfinder = new AStar();
+       ArrayList<GeomPlanarGraphDirectedEdge> path =
+           pathfinder.astarPath(currentJunction, destinationJunction);
 
-                if (startPoint.equals(location.geometry))	{
-                    setNewRoute(newRoute, true);
-                } else	{
-                    if (endPoint.equals(location.geometry))
-                    {
-                        setNewRoute(newRoute, false);
-                    } else	{
-                        System.err.println("Where am I?");
-                    }
-                }
-            }
-        }
-    }
+       // if the path works, lay it in
+       if (path != null && path.size() > 0)	{
 
-    /**
-     * have the agent move along new route
-     * @param line defining new route
-     * @param start true if agent at start of line else agent placed at end
-     */
-    private void setNewRoute(LineString line, boolean start)    {
-        segment = new LengthIndexedLine(line);
-        startIndex = segment.getStartIndex();
-        endIndex = segment.getEndIndex();
+           // save it
+           pathFromHomeToWork = path;
 
-        Coordinate startCoord = null;
+           // set up how to traverse this first link
+           GeomPlanarGraphEdge edge =
+               (GeomPlanarGraphEdge) path.get(0).getEdge();
+           setupEdge(edge);
 
-        if (start)	{
-            startCoord = segment.extractPoint(startIndex);
-            currentIndex = startIndex;
-            moveRate = basemoveRate; // ensure we move forward along segment
-        } else	{
-            startCoord = segment.extractPoint(endIndex);
-            currentIndex = endIndex;
-            moveRate = -basemoveRate; // ensure we move backward along segment
-        }
+           // update the current position for this link
+           updatePosition(segment.extractPoint(currentIndex));
 
-        moveTo(startCoord);
-    }
+       }
+   }
 
-    // move the agent to the given coordinates
-    public void moveTo(Coordinate c)    {
-        pointMoveTo.setCoordinate(c);
-        location.getGeometry().apply(pointMoveTo);
-        getGeometry().geometry.geometryChanged();
-    }
 
-    public void step(SimState state)    {
-    	NorfolkRoutingTEST campState = (NorfolkRoutingTEST) state;
-        move(campState);
-        // campState.agents.setGeometryLocation(getGeometry(), pointMoveTo);
-    }
+   double progress(double val)	{
+       double edgeLength = currentEdge.getLine().getLength();
+       double traffic = world.edgeTraffic1.get(currentEdge).size();
+       double factor = 1000 * edgeLength / (traffic * 5);
+       factor = Math.min(1, factor);
+       return val * linkDirection * factor;
+   }
 
-    /**
-     * moves the agent along the grid
-     * @param geoTest handle on the base SimState
-     * The agent will randomly select an adjacent junction and then move along
-     * the line segment to it. Then it will repeat.
-     */
-    private void move(NorfolkRoutingTEST geoTest)    {
-        // if we're not at a junction move along the current segment
-        if (!arrived())	{
-            moveAlongPath();
-        } else	{
-            findNewPath(geoTest);
-        }
-    }
 
-    // move agent along current line segment 
-    private void moveAlongPath()    {
-        currentIndex += moveRate;
 
-        // Truncate movement to end of line segment
-        if (moveRate < 0)	{ // moving from endIndex to startIndex
-            if (currentIndex < startIndex)
-            {
-                currentIndex = startIndex;
-            }
-        } else	{ // moving from startIndex to endIndex
-            if (currentIndex > endIndex)
-            {
-                currentIndex = endIndex;
-            }
-        }
+   /**
+    * Called every tick by the scheduler.
+    * Moves the agent along the path.
+    */
+   public void step(SimState state)	{
+       // check that we've been placed on an Edge
+       if (segment == null)	{
+           return;
+       } // check that we haven't already reached our destination
+       else if (reachedDestination)	{
+           return;
+       }
 
-        Coordinate currentPos = segment.extractPoint(currentIndex);
+       // make sure that we're heading in the right direction
+       boolean toWork1 = ((MKOne) state).goToWork1;
+       if ((toWork1 && pathDirection < 0) || (!toWork1 && pathDirection > 0))	{
+           flipPath();
+       }
 
-        moveTo(currentPos);
-    }
+       // move along the current segment
+       speed = progress(moveRate);
+       currentIndex += speed;
+
+       // check to see if the progress has taken the current index beyond its goal
+       // given the direction of movement. If so, proceed to the next edge
+       if (linkDirection == 1 && currentIndex > endIndex)	{
+           Coordinate currentPos = segment.extractPoint(endIndex);
+           updatePosition(currentPos);
+           transitionToNextEdge(currentIndex - endIndex);
+       } else if (linkDirection == -1 && currentIndex < startIndex)	{
+           Coordinate currentPos = segment.extractPoint(startIndex);
+           updatePosition(currentPos);
+           transitionToNextEdge(startIndex - currentIndex);
+       } else
+       { // just update the position!
+           Coordinate currentPos = segment.extractPoint(currentIndex);
+
+           updatePosition(currentPos);
+       }
+   }
+
+
+   /**
+    * Flip the agent's path around
+    */
+   void flipPath()	{
+       reachedDestination = false;
+       pathDirection = -pathDirection;
+       linkDirection = -linkDirection;
+   }
+
+
+   /**
+    * Transition to the next edge in the path
+    * @param residualMove the amount of distance the agent can still travel
+    * this turn
+    */
+   void transitionToNextEdge(double residualMove)	{
+
+       // update the counter for where the index on the path is
+       indexOnPath += pathDirection;
+
+       // check to make sure the Agent has not reached the end
+       // of the path already
+       if ((pathDirection > 0 && indexOnPath >= pathFromHomeToWork.size())
+           || (pathDirection < 0 && indexOnPath < 0))// depends on where you're going!
+       {
+           System.out.println(this + " has reached its destination");
+           reachedDestination = true;
+           indexOnPath -= pathDirection; // make sure index is correct
+           return;
+       }
+
+       // move to the next edge in the path
+       GeomPlanarGraphEdge edge =
+           (GeomPlanarGraphEdge) pathFromHomeToWork.get(indexOnPath).getEdge();
+       setupEdge(edge);
+       speed = progress(residualMove);
+       currentIndex += speed;
+
+       // check to see if the progress has taken the current index beyond its goal
+       // given the direction of movement. If so, proceed to the next edge
+       if (linkDirection == 1 && currentIndex > endIndex)	{
+           transitionToNextEdge(currentIndex - endIndex);
+       } else if (linkDirection == -1 && currentIndex < startIndex)	{
+           transitionToNextEdge(startIndex - currentIndex);
+       }
+   }
+
+   ////////////////// HELPER FUNCTIONS ////////////////////////
+
+
+   /**
+    * Sets the Agent up to proceed along an Edge
+    * @param edge the GeomPlanarGraphEdge to traverse next
+    */
+   void setupEdge(GeomPlanarGraphEdge edge)	{
+
+       // clean up on old edge
+       if (currentEdge != null)	{
+           ArrayList<NGOAgent> traffic = world.edgeTraffic1.get(currentEdge);
+           traffic.remove(this);
+       }
+       currentEdge = edge;
+
+       // update new edge traffic
+       if (world.edgeTraffic1.get(currentEdge) == null)	{
+           world.edgeTraffic1.put(currentEdge, new ArrayList<NGOAgent>());
+       }
+       world.edgeTraffic1.get(currentEdge).add(this);
+
+       // set up the new segment and index info
+       LineString line = edge.getLine();
+       segment = new LengthIndexedLine(line);
+       startIndex = segment.getStartIndex();
+       endIndex = segment.getEndIndex();
+       linkDirection = 1;
+
+       // check to ensure that Agent is moving in the right direction
+       double distanceToStart = line.getStartPoint().distance(location.geometry),
+           distanceToEnd = line.getEndPoint().distance(location.geometry);
+       if (distanceToStart <= distanceToEnd)	{ // closer to start
+           currentIndex = startIndex;
+           linkDirection = 1;
+       } else if (distanceToEnd < distanceToStart)	{ // closer to end
+           currentIndex = endIndex;
+           linkDirection = -1;
+       }
+   }
+
+
+   /**
+    * Move the agent to the given coordinates
+    */
+   public void updatePosition(Coordinate c)	{
+       pointMoveTo.setCoordinate(c);
+       // location.geometry.apply(pointMoveTo);
+
+       world.agents.setGeometryLocation(location, pointMoveTo);
+   }
+
+
+   /**
+    * Return geometry representing agent location
+    */
+   public MasonGeometry getGeometry()	{
+       return location;
+   }
 }
