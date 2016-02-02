@@ -166,6 +166,17 @@ public class MKOne extends SimState	{
 		//////////////////////////////////////////////
 		///////////// READING IN DATA ////////////////
 		//////////////////////////////////////////////
+       
+        /*
+        src/
+        data/
+            .shp, .dbf, .csv ...
+        sim/
+        	app/
+        		geo/
+        			MKOne/
+        				.java files
+         */
         
         try {
             // read in the roads shapefile to create the transit network

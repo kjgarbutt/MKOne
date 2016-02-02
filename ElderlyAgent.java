@@ -43,7 +43,7 @@ public final class ElderlyAgent implements Steppable	{
     // private Point location;
     private MasonGeometry location; // point that denotes agent's position
     // How much to move the agent by in each step()
-    private double moveRate = 300; //0.001;
+    private double moveRate = 500; //0.001;
     private LengthIndexedLine segment = null;
     double startIndex = 0.0; // start position of current line
     double endIndex = 0.0; // end position of current line
