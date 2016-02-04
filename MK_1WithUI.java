@@ -1,4 +1,4 @@
-package sim.app.geo.MKOne;
+package sim.app.geo.MK_1;
 
 import java.awt.Color;
 
@@ -29,7 +29,7 @@ import sim.util.media.chart.TimeSeriesChartGenerator;
  * @author KJGarbutt
  *
  */
-public class MKOneWithUI extends GUIState	{
+public class MK_1WithUI extends GUIState	{
 	
 	///////////////////////////////////////////////////////////////////////////
 	/////////////////////////// DISPLAY FUNCTIONS /////////////////////////////
@@ -58,7 +58,7 @@ public class MKOneWithUI extends GUIState	{
     /**
      * Default constructor
      */
-    protected MKOneWithUI(SimState state)	{
+    protected MK_1WithUI(SimState state)	{
             super(state);
         }
 
@@ -67,8 +67,8 @@ public class MKOneWithUI extends GUIState	{
          * @param args
          */
         public static void main(String[] args)	{
-        	MKOneWithUI simple = new MKOneWithUI(
-        			new MKOne(System.currentTimeMillis()));
+        	MK_1WithUI simple = new MK_1WithUI(
+        			new MK_1(System.currentTimeMillis()));
             Console c = new Console(simple);
             c.setVisible(true);
         }
@@ -98,7 +98,7 @@ public class MKOneWithUI extends GUIState	{
         public void start()	{
             super.start();
 
-            MKOne world = (MKOne) state;
+            MK_1 world = (MK_1) state;
 
             maxSpeed = new XYSeries("Max Speed");
             avgSpeed = new XYSeries("Average Speed");
@@ -111,7 +111,7 @@ public class MKOneWithUI extends GUIState	{
             state.schedule.scheduleRepeating(new Steppable()	{
 
                 public void step(SimState state)	{
-                	MKOne world = (MKOne) state;
+                	MK_1 world = (MK_1) state;
                     double maxS = 0, minS = 10000, avgS = 0, count = 0;
                     /////////////// Main Agent ///////////////////////
                     for (MainAgent a : world.agentList)	{

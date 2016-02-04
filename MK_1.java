@@ -1,4 +1,4 @@
-package sim.app.geo.MKOne;
+package sim.app.geo.MK_1;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -34,7 +34,7 @@ import com.vividsolutions.jts.planargraph.Node;
  * @author KJGarbutt
  *
  */
-public class MKOne extends SimState	{
+public class MK_1 extends SimState	{
 	
 	////////////////////////////////////////////////////////////////
 	///////////////////// MODEL PARAMETERS /////////////////////////
@@ -150,7 +150,7 @@ public class MKOne extends SimState	{
     /**
      * Model Constructor
      */
-    public MKOne(long seed)	{
+    public MK_1(long seed)	{
         super(seed);
     }
 
@@ -180,7 +180,7 @@ public class MKOne extends SimState	{
         
         try {
             // read in the roads shapefile to create the transit network
-        	URL roadsFile = MKOne.class.getResource
+        	URL roadsFile = MK_1.class.getResource
         			("/data/NorfolkITNLSOA.shp");
             ShapeFileImporter.read(roadsFile, roads);
             System.out.println("Roads shapefile: " +roadsFile);
@@ -188,7 +188,7 @@ public class MKOne extends SimState	{
             Envelope MBR = roads.getMBR();
 
             // read in the LSOA shapefile to create the background        
-            URL areasFile = MKOne.class.getResource
+            URL areasFile = MK_1.class.getResource
             		("/data/NorfolkLSOA.shp");
             ShapeFileImporter.read(areasFile, lsoa);
             System.out.println("LSOA shapefile: " +areasFile);
@@ -196,7 +196,7 @@ public class MKOne extends SimState	{
             MBR.expandToInclude(lsoa.getMBR());
 
             // read in the FZ3 file     
-            URL flood3File = MKOne.class.getResource
+            URL flood3File = MK_1.class.getResource
             		("/data/NorfolkFZ3.shp");
             ShapeFileImporter.read(flood3File, flood3);
             System.out.println("FZ3 shapefile: " +flood3File);
@@ -204,7 +204,7 @@ public class MKOne extends SimState	{
             MBR.expandToInclude(flood3.getMBR());
             
             // read in the FZ2 file     
-            URL flood2File = MKOne.class.getResource
+            URL flood2File = MK_1.class.getResource
             		("/data/NorfolkFZ2.shp");
             ShapeFileImporter.read(flood2File, flood2);
             System.out.println("FZ2 shapefile: " +flood2File);
@@ -266,7 +266,7 @@ public class MKOne extends SimState	{
 				@Override
                 public void step(SimState state)	{
 
-					MKOne gstate = (MKOne) state;
+					MK_1 gstate = (MK_1) state;
 
 					// checks to see if anyone has not yet reached destination
                     for (MainAgent a : gstate.agentList)	{
@@ -382,7 +382,7 @@ public class MKOne extends SimState	{
     public void populateAgent(String filename)	{
     	//System.out.println("Populating model: ");
         try	{
-            String filePath = MKOne.class.getResource(filename).getPath();
+            String filePath = MK_1.class.getResource(filename).getPath();
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println("Populating model with Main Agents: " +filePath);
             System.out.println();
@@ -454,7 +454,7 @@ public class MKOne extends SimState	{
     //////////////////////// NGOAgent /////////////////////////////
     public void populateNGO(String filename)	{
         try	{
-            String filePath = MKOne.class.getResource(filename).getPath();
+            String filePath = MK_1.class.getResource(filename).getPath();
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println();
             System.out.println("Populating model with NGO Agents: " +filePath);
@@ -515,7 +515,7 @@ public class MKOne extends SimState	{
     //////////////////////// ElderlyAgent ///////////////////////////
     public void populateElderly(String filename)	{
         try	{
-            String filePath = MKOne.class.getResource(filename).getPath();
+            String filePath = MK_1.class.getResource(filename).getPath();
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println();
             System.out.println("Populating model with Elderly Agents: " +filePath);
@@ -576,7 +576,7 @@ public class MKOne extends SimState	{
     //////////////////// LimitedActions Agent ////////////////////////////
     public void populateLimitedActions(String filename)	{
         try	{
-            String filePath = MKOne.class.getResource(filename).getPath();
+            String filePath = MK_1.class.getResource(filename).getPath();
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println();
             System.out.println("Populating model with Limited Actions Agents: " +filePath);
@@ -664,7 +664,7 @@ public class MKOne extends SimState	{
      * Main function allows simulation to be run in stand-alone, non-GUI mode
      */
     public static void main(String[] args)	{
-        doLoop(MKOne.class, args);        
+        doLoop(MK_1.class, args);        
         System.exit(0);
     }
 }

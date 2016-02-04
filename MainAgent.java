@@ -1,4 +1,4 @@
-package sim.app.geo.MKOne;
+package sim.app.geo.MK_1;
 
 import java.util.ArrayList;
 
@@ -25,7 +25,8 @@ import com.vividsolutions.jts.planargraph.Node;
  * 
  * @author KJGarbutt
  *
- */
+*/
+
 public final class MainAgent implements Steppable	{
     private static final long serialVersionUID = -1113018274619047013L;
     
@@ -33,7 +34,7 @@ public final class MainAgent implements Steppable	{
     //////////////////////// PARAMETERS ////////////////////////////
     ////////////////////////////////////////////////////////////////
     
-    MKOne world;
+    MK_1 world;
     // Residence/Work Attributes
     String homeTract = "";
     String workTract = "";
@@ -71,7 +72,7 @@ public final class MainAgent implements Steppable	{
 	 * @param workNode - Coordinate indicating the Agent's workplace
 	 * @param world - reference to the containing NorfolkRouting instance
 	 */
-    public MainAgent(MKOne g, String homeTract, String workTract,
+    public MainAgent(MK_1 g, String homeTract, String workTract,
             GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge)	{
 	   world = g;
 	
@@ -89,7 +90,7 @@ public final class MainAgent implements Steppable	{
 	   updatePosition(startCoord);
 	}
     
-    public MainAgent(MKOne g, int homeTract, int workTract,
+    public MainAgent(MK_1 g, int homeTract, int workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
 	}
     
@@ -103,7 +104,7 @@ public final class MainAgent implements Steppable	{
     * @param state
     * @return whether or not the agent successfully found a path to work
     */
-   public boolean start(MKOne state)	{
+   public boolean start(MK_1 state)	{
        findNewAStarPath(state);
        if (pathFromHomeToWork.isEmpty())	{
            System.out.println("Initialization of agent failed: it is located in a part "
@@ -118,7 +119,7 @@ public final class MainAgent implements Steppable	{
    /**
     * Plots a path between the Agent's home Node and its work Node
     */
-   private void findNewAStarPath(MKOne geoTest)	{
+   private void findNewAStarPath(MK_1 geoTest)	{
 
        // get the home and work Nodes with which this Agent is associated
        Node currentJunction = geoTest.network.findNode(location.geometry.getCoordinate());
@@ -173,7 +174,7 @@ public final class MainAgent implements Steppable	{
        }
 
        // make sure that we're heading in the right direction
-       boolean toWork = ((MKOne) state).goToWork1;
+       boolean toWork = ((MK_1) state).goToWork1;
        if ((toWork && pathDirection < 0) || (!toWork && pathDirection > 0))	{
            flipPath();
        }

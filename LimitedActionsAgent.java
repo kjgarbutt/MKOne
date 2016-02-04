@@ -1,4 +1,4 @@
-package sim.app.geo.MKOne;
+package sim.app.geo.MK_1;
 
 import java.util.ArrayList;
 
@@ -33,7 +33,7 @@ public final class LimitedActionsAgent implements Steppable	{
     //////////////////////// PARAMETERS ////////////////////////////
     ////////////////////////////////////////////////////////////////
     
-    MKOne world;
+    MK_1 world;
     // Residence/Work Attributes
     String homeTract = "";
     String workTract = "";
@@ -71,7 +71,7 @@ public final class LimitedActionsAgent implements Steppable	{
 	 * @param workNode - Coordinate indicating the Agent's workplace
 	 * @param world - reference to the containing NorfolkRouting instance
 	 */
-    public LimitedActionsAgent(MKOne g, String homeTract, String workTract,
+    public LimitedActionsAgent(MK_1 g, String homeTract, String workTract,
             GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge)	{
 	   world = g;
 	
@@ -89,7 +89,7 @@ public final class LimitedActionsAgent implements Steppable	{
 	   updatePosition(startCoord);
 	}
     
-    public LimitedActionsAgent(MKOne g, int homeTract, int workTract,
+    public LimitedActionsAgent(MK_1 g, int homeTract, int workTract,
 			GeomPlanarGraphEdge startingEdge, GeomPlanarGraphEdge goalEdge) {
 	}
     
@@ -101,7 +101,7 @@ public final class LimitedActionsAgent implements Steppable	{
     * @param state
     * @return whether or not the agent successfully found a path to work
     */
-   public boolean start(MKOne state)	{
+   public boolean start(MK_1 state)	{
        findNewAStarPath(state);
 
        if (pathFromHomeToWork.isEmpty())	{
@@ -117,7 +117,7 @@ public final class LimitedActionsAgent implements Steppable	{
    /**
     * Plots a path between the Agent's home Node and its work Node
     */
-   private void findNewAStarPath(MKOne geoTest)	{
+   private void findNewAStarPath(MK_1 geoTest)	{
 
        // get the home and work Nodes with which this Agent is associated
        Node currentJunction = geoTest.network.findNode(location.geometry.getCoordinate());
@@ -173,7 +173,7 @@ public final class LimitedActionsAgent implements Steppable	{
        }
 
        // make sure that we're heading in the right direction
-       boolean toWork3 = ((MKOne) state).goToWork3;
+       boolean toWork3 = ((MK_1) state).goToWork3;
        if ((toWork3 && pathDirection < 0) || (!toWork3 && pathDirection > 0))	{
            flipPath();
        }
