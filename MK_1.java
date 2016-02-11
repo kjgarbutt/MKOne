@@ -174,7 +174,7 @@ public class MK_1 extends SimState	{
         sim/
         	app/
         		geo/
-        			MKOne/
+        			MK_1/
         				.java files
          */
         
