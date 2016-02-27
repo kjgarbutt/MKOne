@@ -126,20 +126,19 @@ public class MK_1 extends SimState	{
     
     Integer[] goals =	{	// MainAgent
     		// 78277, 82124 // doesn't work
-    		18081, 519
+    		30250
     };
 
     Integer[] goals1 =	{	// NGOAgent
-    		77922, 75184, 30250, 21431,
+    		30250
     };
     
     Integer[] goals2 =	{	// ElderlyAgent
-    		60608, 17877, 78159, 82044
+    		30250
     };
     
     Integer[] goals3 =	{	// LimitedActionsAgent
-    		//74138, 77223
-    		40121, 17661, 79640
+    		30250
     };
     
     ///////////////////////////////////////////////////////////////////////////
@@ -397,19 +396,19 @@ public class MK_1 extends SimState	{
                 String[] bits = s.split(",");
                 
                 int pop = Integer.parseInt(bits[39]);
-                //System.out.println("Main Agent (AN:POP): " +pop);
+                System.out.println("Main Agent (AN:POP): " +pop);
                 
                 String homeTract = bits[11];
-                //System.out.println("Main Agent (L:LSOA_ID): " +homeTract);
+                System.out.println("Main Agent (L:LSOA_ID): " +homeTract);
                 
                 String workTract = bits[40];
-                //System.out.println("Main Agent (AO:WORK): " +workTract);
+                System.out.println("Main Agent (AO:WORK): " +workTract);
                 
                 String id_id = bits[11];
-                //System.out.println("Main Agent ID_ID (L: ROAD_ID): " +id_id);
+                System.out.println("Main Agent ID_ID (L: ROAD_ID): " +id_id);
                 
                 String ROAD_ID = bits[11];
-                //System.out.println("Main Agent ROAD_ID (L: ROAD_ID: " +ROAD_ID);
+                System.out.println("Main Agent ROAD_ID (L: ROAD_ID): " +ROAD_ID);
                 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
