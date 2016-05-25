@@ -180,9 +180,9 @@ public class MK_1 extends SimState	{
         try {
             // read in the roads shapefile to create the transit network
         	URL roadsFile = MK_1.class.getResource
-        			("/data/NorfolkITNLSOA.shp");
+        			("/data/NorfolkITN.shp");
             ShapeFileImporter.read(roadsFile, roads);
-            System.out.println("Roads shapefile: " +roadsFile);
+            System.out.println("	Roads shapefile: " +roadsFile);
             
             Envelope MBR = roads.getMBR();
 
@@ -190,7 +190,7 @@ public class MK_1 extends SimState	{
             URL areasFile = MK_1.class.getResource
             		("/data/NorfolkLSOA.shp");
             ShapeFileImporter.read(areasFile, lsoa);
-            System.out.println("LSOA shapefile: " +areasFile);
+            System.out.println("	LSOA shapefile: " +areasFile);
 
             MBR.expandToInclude(lsoa.getMBR());
 
@@ -198,7 +198,7 @@ public class MK_1 extends SimState	{
             URL flood3File = MK_1.class.getResource
             		("/data/NorfolkFZ3.shp");
             ShapeFileImporter.read(flood3File, flood3);
-            System.out.println("FZ3 shapefile: " +flood3File);
+            System.out.println("	FZ3 shapefile: " +flood3File);
             
             MBR.expandToInclude(flood3.getMBR());
             
@@ -206,7 +206,7 @@ public class MK_1 extends SimState	{
             URL flood2File = MK_1.class.getResource
             		("/data/NorfolkFZ2.shp");
             ShapeFileImporter.read(flood2File, flood2);
-            System.out.println("FZ2 shapefile: " +flood2File);
+            System.out.println("	FZ2 shapefile: " +flood2File);
             System.out.println();
             
             MBR.expandToInclude(flood2.getMBR());
@@ -228,10 +228,10 @@ public class MK_1 extends SimState	{
             //////////////////////////////////////////////
             
             // initialize agents
-            populateAgent("/data/NorfolkITNLSOA.csv");
-            populateNGO("/data/NorfolkITNLSOANGO.csv");
-            populateElderly("/data/NorfolkITNLSOAELDERLY.csv");
-            populateLimitedActions("/data/NorfolkITNLSOALIMITED.csv");
+            populateAgent("/data/NorfolkITNAGENT.csv");
+            populateNGO("/data/NorfolkITNNGO.csv");
+            populateElderly("/data/NorfolkITNELDERLY.csv");
+            populateLimitedActions("/data/NorfolkITNLIMITED.csv");
             System.out.println();
             System.out.println("Starting simulation...");
             
@@ -395,20 +395,22 @@ public class MK_1 extends SimState	{
             while ((s = d.readLine()) != null)	{ 
                 String[] bits = s.split(",");
                 
-                int pop = Integer.parseInt(bits[39]);
-                System.out.println("Main Agent (AN:POP): " +pop);
-                
-                String homeTract = bits[11];
-                System.out.println("Main Agent (L:LSOA_ID): " +homeTract);
-                
-                String workTract = bits[40];
-                System.out.println("Main Agent (AO:WORK): " +workTract);
-                
-                String id_id = bits[11];
-                System.out.println("Main Agent ID_ID (L: ROAD_ID): " +id_id);
-                
-                String ROAD_ID = bits[11];
-                System.out.println("Main Agent ROAD_ID (L: ROAD_ID): " +ROAD_ID);
+                int pop = Integer.parseInt(bits[2]);
+                //System.out.println();
+                System.out.println("Main Agent road segment population (C:Count): " +pop);
+
+                String homeTract = bits[3];
+                System.out.println("Main Agent homeTract (D:ROAD_ID): " +homeTract);
+
+                String workTract = bits[4];
+                System.out.println("Main Agent workTract (E:Work): " +workTract);
+
+                String id_id = bits[3];
+                System.out.println("Main Agent ID_ID (D:ROAD_ID): " +id_id);
+
+                String ROAD_ID = bits[3];
+                System.out.println("Main Agent road segment (D:ROAD_ID): " +ROAD_ID);
+                //System.out.println();
                 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
@@ -468,15 +470,22 @@ public class MK_1 extends SimState	{
             while ((s = d.readLine()) != null)	{ 
                 String[] bits = s.split(",");
                 
-                int pop = Integer.parseInt(bits[39]);
-                
-                String homeTract = bits[11];
-                
-                String workTract = bits[40];
-                
-                String id_id = bits[11];
-                
-                String ROAD_ID = bits[11];
+                int pop = Integer.parseInt(bits[2]);
+                //System.out.println();
+                System.out.println("NGO Agent road segment population (C:Count): " +pop);
+
+                String homeTract = bits[3];
+                System.out.println("NGO Agent homeTract (D:ROAD_ID): " +homeTract);
+
+                String workTract = bits[4];
+                System.out.println("NGO Agent workTract (E:Work): " +workTract);
+
+                String id_id = bits[3];
+                System.out.println("NGO Agent ID_ID (D:ROAD_ID): " +id_id);
+
+                String ROAD_ID = bits[3];
+                System.out.println("NGO Agent road segment (D:ROAD_ID): " +ROAD_ID);
+                //System.out.println();
                 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
@@ -529,15 +538,22 @@ public class MK_1 extends SimState	{
             while ((s = d.readLine()) != null)	{ 
                 String[] bits = s.split(",");
                 
-                int pop = Integer.parseInt(bits[39]);
-                
-                String homeTract = bits[11];
-                
-                String workTract = bits[40];
-                
-                String id_id = bits[11];
-                
-                String ROAD_ID = bits[11];
+                int pop = Integer.parseInt(bits[2]);
+                //System.out.println();
+                System.out.println("Elderly Agent road segment population (C:Count): " +pop);
+
+                String homeTract = bits[3];
+                System.out.println("Elderly Agent homeTract (D:ROAD_ID): " +homeTract);
+
+                String workTract = bits[4];
+                System.out.println("Elderly Agent workTract (E:Work): " +workTract);
+
+                String id_id = bits[3];
+                System.out.println("Elderly Agent ID_ID (D:ROAD_ID): " +id_id);
+
+                String ROAD_ID = bits[3];
+                System.out.println("Elderly Agent road segment (D:ROAD_ID): " +ROAD_ID);
+                //System.out.println();
                 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
@@ -590,15 +606,22 @@ public class MK_1 extends SimState	{
             while ((s = d.readLine()) != null)	{ 
                 String[] bits = s.split(",");
                 
-                int pop = Integer.parseInt(bits[39]);
-                
-                String homeTract = bits[11];
-                
-                String workTract = bits[40];
-                
-                String id_id = bits[11];
-                
-                String ROAD_ID = bits[11];
+                int pop = Integer.parseInt(bits[2]);
+                //System.out.println();
+                System.out.println("LimitedActions Agent road segment population (C:Count): " +pop);
+
+                String homeTract = bits[3];
+                System.out.println("LimitedActions Agent homeTract (D:ROAD_ID): " +homeTract);
+
+                String workTract = bits[4];
+                System.out.println("LimitedActions Agent workTract (E:Work): " +workTract);
+
+                String id_id = bits[3];
+                System.out.println("LimitedActions Agent ID_ID (D:ROAD_ID): " +id_id);
+
+                String ROAD_ID = bits[3];
+                System.out.println("LimitedActions Agent road segment (D:ROAD_ID): " +ROAD_ID);
+                //System.out.println();
                 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
